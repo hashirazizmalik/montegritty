@@ -123,7 +123,7 @@ export async function POST(req) {
       ok: true,
       message: delivered
         ? 'Thanks — your message is on its way. We’ll reply within one business day.'
-        : 'Thanks — we’ve logged your enquiry. For the fastest reply, message us on WhatsApp.',
+        : 'Thanks — we’ve logged your enquiry. For the fastest reply, call us directly.',
     });
   } catch (err) {
     console.error('[contact] delivery failed:', err);

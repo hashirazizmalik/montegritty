@@ -6,8 +6,6 @@ Rebuilt from a single static `index.html` into a Next.js App Router project.
 The original file is preserved untouched at [`legacy/index.html`](legacy/index.html)
 for reference.
 
-**Live:** https://montegritty.netlify.app
-
 ---
 
 ## Stack
@@ -19,7 +17,7 @@ for reference.
 | 3D         | three.js — hero point field only                           |
 | Backend    | Next.js Route Handler at `/api/contact`                    |
 | Fonts      | `next/font` (Fraunces, Plus Jakarta Sans, Space Mono), self-hosted |
-| Hosting    | Netlify + `@netlify/plugin-nextjs`                         |
+| Hosting    | Vercel                                                      |
 
 ## Running locally
 
@@ -44,7 +42,7 @@ legacy/index.html      the original single-file site
 ```
 
 Copy lives in `lib/content.js` on purpose. Changing a service name, a
-testimonial, or the WhatsApp number means editing one object, not hunting
+testimonial, or the phone number means editing one object, not hunting
 through JSX.
 
 ## Services
@@ -58,13 +56,12 @@ Thirteen services under three umbrellas, rendered as an accordion
 
 ## ⚠️ Testimonials — read before going live
 
-The five testimonials in `lib/content.js` are **draft copy that was written for
-this build**. They are attributed to real, named people at real companies:
+The testimonials in `lib/content.js` are **draft copy**. Four are attributed
+to real, named people at real companies:
 
 - Haris — Skinbird
 - Hamza Abdul Sattar — Zoue Tech
 - Huzaifa Awan — Cortex
-- Atif Shehzad — Makka Groups
 - Shakir Shehzad — Shakir & Associates
 
 **None of these people said these words.** Get written sign-off from each of
@@ -72,7 +69,19 @@ them, and replace any quote they'd like worded differently, before this section
 is published. Publishing invented quotes under a real person's name and title is
 a reputational and legal problem, not a placeholder detail.
 
-## Contact form
+The fifth entry, **Verento Logistics**, is entirely fictional — no real company
+or person behind it. It's standing in for a fifth real testimonial (the Makka
+Groups quote was pulled pending approval). Swap it out or drop it once that's
+ready — it needs no sign-off since nobody real is attached to it, but it also
+shouldn't stay on the live site indefinitely.
+
+## Contact
+
+For now, contact is **phone only** — no email, no WhatsApp. The number lives
+in `CONTACT.phoneDisplay` / `CONTACT.phoneLink` in `lib/content.js`; it renders
+in the footer and as a "call us directly" link beside the enquiry form.
+
+### Enquiry form
 
 `POST /api/contact` accepts `{ name, email, company?, message, timeline? }`.
 
@@ -82,10 +91,10 @@ a reputational and legal problem, not a placeholder detail.
   failures deliberately do *not* count, so a mistyped email can't lock a real
   visitor out.
 
-### Email delivery
+#### Email delivery
 
-Delivery uses [Resend](https://resend.com). Set these in Netlify → Site
-configuration → Environment variables (see `.env.example`):
+Delivery uses [Resend](https://resend.com). Set these in Vercel → Project →
+Settings → Environment Variables (see `.env.example`):
 
 ```
 RESEND_API_KEY=
@@ -94,13 +103,13 @@ CONTACT_FROM_EMAIL=
 ```
 
 **If they aren't set, the form still works** — it validates and returns success,
-but only logs to the server console and tells the visitor to use WhatsApp
-instead. Set them before launch, or enquiries will land nowhere anyone reads.
+but only logs to the server console and tells the visitor to call instead. Set
+them before launch, or enquiries will land nowhere anyone reads.
 
-### Rate limiter caveat
+#### Rate limiter caveat
 
 The limiter is an in-memory `Map`. It resets on every deploy and does **not**
-coordinate across serverless instances, so on Netlify the real ceiling is
+coordinate across serverless instances, so in production the real ceiling is
 5/minute *per warm instance*. It's a speed bump for casual spam, not abuse
 protection. Put Upstash Redis behind it if the form starts getting hit.
 
@@ -127,17 +136,18 @@ stays out of the initial bundle.
 - All motion is disabled under `prefers-reduced-motion`
 - Focus-visible outlines on every custom control
 
-## Deploying (Netlify)
+## Deploying (Vercel)
 
-The site is already on Netlify. `netlify.toml` pins the build command, Node 20,
-the Next.js runtime plugin, and a few security headers.
+No config file is needed — Vercel detects Next.js automatically and deploys
+`/api/contact` as a serverless function without extra setup.
 
-The plugin is **required** — without it the `/api/contact` route handler is not
-deployed as a function and the form 404s in production.
+```bash
+npx vercel link      # first time: connect this folder to a Vercel project
+npx vercel --prod     # deploy
+```
 
-To connect this repo: Netlify → Site configuration → Build & deploy → link the
-repository. Netlify reads `netlify.toml` automatically. Then add the three
-environment variables above and trigger a redeploy.
+Add the three environment variables above in Vercel → Project → Settings →
+Environment Variables, then redeploy.
 
 ## Known issues
 

@@ -7,7 +7,6 @@ import Verticals from '@/components/Verticals';
 import Testimonials from '@/components/Testimonials';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
-import WhatsAppFloat from '@/components/WhatsAppFloat';
 
 export default function Page() {
   return (
@@ -23,7 +22,6 @@ export default function Page() {
         <Contact />
       </main>
       <Footer />
-      <WhatsAppFloat />
     </>
   );
 }

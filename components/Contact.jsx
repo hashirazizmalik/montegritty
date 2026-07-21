@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CONTACT } from '@/lib/content';
 import Reveal from './Reveal';
-import WhatsAppIcon from './WhatsAppIcon';
+import PhoneIcon from './PhoneIcon';
 
 const SCOPES = [
   { value: '4-6 Weeks', label: 'We need to automate manual workflows' },
@@ -69,7 +69,7 @@ export default function Contact() {
       setForm(EMPTY);
     } catch (err) {
       setStatus('error');
-      setNote(`${err.message} You can also reach us on WhatsApp.`);
+      setNote(`${err.message} You can also call us directly.`);
     }
   };
 
@@ -132,11 +132,11 @@ export default function Contact() {
           </div>
         </form>
 
-        <div className="wa-row">
-          <span className="wa-sep">or message us directly</span>
-          <a className="wa-btn" href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
-            <WhatsAppIcon />
-            WhatsApp <span className="num">{CONTACT.whatsappDisplay}</span>
+        <div className="call-row">
+          <span className="call-sep">or call us directly</span>
+          <a className="call-btn" href={CONTACT.phoneLink}>
+            <PhoneIcon />
+            <span className="num">{CONTACT.phoneDisplay}</span>
           </a>
         </div>
       </Reveal>

@@ -338,30 +338,17 @@ section:not(.hero) { padding: 130px 0; position: relative; }
 .spin { width: 15px; height: 15px; border: 1.5px solid rgba(250,248,245,0.35); border-top-color: var(--bone); border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* WhatsApp */
-.wa-row { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
-.wa-sep { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-.wa-btn {
+/* Direct call CTA */
+.call-row { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
+.call-sep { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.call-btn {
   display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 46px;
   padding: 14px 26px; font-size: 0.95rem; font-weight: 500; background: var(--bone);
   transition: transform 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
 }
-.wa-btn:hover { transform: translateY(-4px); border-color: var(--ink); box-shadow: 0 12px 24px rgba(18, 17, 16, 0.1); }
-.wa-btn svg { width: 19px; height: 19px; flex-shrink: 0; fill: #25D366; }
-.wa-btn .num { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.88rem; letter-spacing: 0.04em; }
-
-/* Floating WhatsApp bubble */
-.wa-float {
-  position: fixed; right: 26px; bottom: 26px; z-index: 90;
-  width: 54px; height: 54px; border-radius: 50%; background: #25D366;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 10px 28px rgba(37, 211, 102, 0.35);
-  opacity: 0; transform: translateY(20px) scale(0.85); pointer-events: none;
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), box-shadow 0.4s var(--ease);
-}
-.wa-float.show { opacity: 1; transform: none; pointer-events: auto; }
-.wa-float:hover { transform: translateY(-4px) scale(1.06); box-shadow: 0 16px 34px rgba(37, 211, 102, 0.45); }
-.wa-float svg { width: 27px; height: 27px; fill: #fff; }
+.call-btn:hover { transform: translateY(-4px); border-color: var(--ink); box-shadow: 0 12px 24px rgba(18, 17, 16, 0.1); }
+.call-btn svg { width: 18px; height: 18px; flex-shrink: 0; fill: var(--clay); }
+.call-btn .num { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.88rem; letter-spacing: 0.04em; }
 
 /* ---------- FOOTER ---------- */
 footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
@@ -416,7 +403,6 @@ footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
   .tst-slide.active { position: relative; }
 
   .form-widget, .calc-widget { padding: 28px 22px; }
-  .wa-float { right: 16px; bottom: 16px; }
   .foot-top { grid-template-columns: 1fr; gap: 48px; }
   section:not(.hero) { padding: 90px 0; }
 }

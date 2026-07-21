@@ -23,10 +23,7 @@ export default function Footer() {
           </div>
           <div className="foot-col">
             <h4>Reach us</h4>
-            <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
-              WhatsApp {CONTACT.whatsappDisplay}
-            </a>
-            <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+            <a href={CONTACT.phoneLink}>{CONTACT.phoneDisplay}</a>
             <p>{CONTACT.hours}</p>
             <p>Remote-first, globally available</p>
           </div>

@@ -5,32 +5,20 @@ import { CONTACT } from '@/lib/content';
 import Reveal from './Reveal';
 import PhoneIcon from './PhoneIcon';
 
-const SCOPES = [
-  { value: '4-6 Weeks', label: 'We need to automate manual workflows' },
-  { value: '6-10 Weeks', label: 'We need a website or mobile app built' },
-  { value: '8-12 Weeks', label: 'Our sales/service teams need a better CRM' },
-  { value: '3-5 Months', label: 'We need a full ERP implementation' },
-  { value: '3-6 Months', label: 'We want AI agents or a custom model' },
-  { value: '4-6 Months', label: 'We require bespoke system architecture' },
-];
-
 const EMPTY = { name: '', email: '', company: '', message: '' };
 
-export default function Contact() {
-  const [timeline, setTimeline] = useState(SCOPES[0].value);
-  const [swap, setSwap] = useState(false);
+function buildWhatsAppMessage({ name, email, company, message }) {
+  const lines = ['New enquiry from the Montegritty website', '', `Name: ${name}`, `Email: ${email}`];
+  if (company.trim()) lines.push(`Company: ${company.trim()}`);
+  lines.push('', message.trim());
+  return lines.join('\n');
+}
 
+export default function Contact() {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+  const [status, setStatus] = useState('idle'); // idle | sent | error
   const [note, setNote] = useState('');
-
-  // brief fade-out/in so the timeline number doesn't just pop
-  const onScopeChange = (e) => {
-    const next = e.target.value;
-    setSwap(true);
-    setTimeout(() => { setTimeline(next); setSwap(false); }, 180);
-  };
 
   const set = (k) => (e) => {
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -46,30 +34,24 @@ export default function Contact() {
     return Object.keys(e).length === 0;
   };
 
-  const submit = async (ev) => {
+  const submit = (ev) => {
     ev.preventDefault();
-    if (status === 'sending') return;
     if (!validate()) return;
 
-    setStatus('sending');
-    setNote('');
+    const text = buildWhatsAppMessage(form);
+    const url = `${CONTACT.whatsappLink}?text=${encodeURIComponent(text)}`;
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, timeline }),
-      });
-      const data = await res.json().catch(() => ({}));
+    // window.open must fire synchronously inside the click handler — no fetch or
+    // await before it — or browsers treat it as an unrequested popup and block it.
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
 
-      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
-
+    if (win) {
       setStatus('sent');
-      setNote(data.message || 'Thanks — we’ll be in touch shortly.');
+      setNote('WhatsApp opened in a new tab — send the message there to finish your enquiry.');
       setForm(EMPTY);
-    } catch (err) {
+    } else {
       setStatus('error');
-      setNote(`${err.message} You can also call us directly.`);
+      setNote('Your browser blocked the popup — use the WhatsApp button below instead.');
     }
   };
 
@@ -77,24 +59,10 @@ export default function Contact() {
     <section id="contact" className="cta">
       <Reveal className="wrap">
         <span className="eyebrow" style={{ justifyContent: 'center', display: 'flex', marginBottom: 24 }}>
-          Project Scope
+          Get in touch
         </span>
         <h2>Bring us the process<br />that <em>keeps you up</em> at night.</h2>
-        <p>Get an immediate read on potential timelines, then tell us what you&rsquo;re dealing with.</p>
-
-        <div className="calc-widget">
-          <div className="calc-head"><h3>Estimate Timeline</h3></div>
-          <div className="calc-opt-group">
-            <label className="calc-label" htmlFor="calcType">What is the core challenge?</label>
-            <select id="calcType" className="calc-select" onChange={onScopeChange} defaultValue={SCOPES[0].value}>
-              {SCOPES.map((s) => <option key={s.label} value={s.value}>{s.label}</option>)}
-            </select>
-          </div>
-          <div className="calc-result">
-            <span>Estimated Target Timeline</span>
-            <strong className={swap ? 'swap' : ''}>{timeline}</strong>
-          </div>
-        </div>
+        <p>Tell us what you&rsquo;re dealing with and we&rsquo;ll pick it up on WhatsApp.</p>
 
         <form className="form-widget" onSubmit={submit} noValidate>
           <div className="calc-head"><h3>Start the conversation</h3></div>
@@ -123,9 +91,7 @@ export default function Contact() {
           </div>
 
           <div className="form-foot">
-            <button type="submit" className="btn" disabled={status === 'sending'}>
-              {status === 'sending' ? <>Sending <span className="spin" /></> : <>Send enquiry <span className="arr">↗</span></>}
-            </button>
+            <button type="submit" className="btn">Send via WhatsApp <span className="arr">↗</span></button>
             <span className={`form-note ${status === 'error' ? 'bad' : 'ok'}${note ? ' show' : ''}`} role="status">
               {note}
             </span>

@@ -289,28 +289,16 @@ section:not(.hero) { padding: 130px 0; position: relative; }
 .tst-arrow:hover { background: var(--ink); color: var(--bone); border-color: var(--ink); transform: translateY(-3px); }
 .tst-arrow:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
 
-/* ---------- CTA, CALCULATOR & CONTACT ---------- */
+/* ---------- CTA & CONTACT ---------- */
 .cta { text-align: center; }
 .cta h2 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; letter-spacing: -0.03em; line-height: 1.1; font-size: clamp(2.6rem, 6vw, 5.2rem); max-width: 16ch; margin: 0 auto; }
 .cta h2 em { font-style: italic; color: var(--clay); }
 .cta p { color: var(--ink-soft); max-width: 50ch; margin: 32px auto 56px; font-size: 1.1rem; line-height: 1.7; }
 
-.calc-widget {
-  background: var(--bone-2); border: 1px solid var(--line); border-radius: 24px;
-  padding: 40px; max-width: 600px; margin: 0 auto 40px; text-align: left;
-}
 .calc-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 24px; }
 .calc-head h3 { font-family: var(--font-fraunces), Georgia, serif; font-size: 1.4rem; font-weight: 400; }
-.calc-opt-group { margin-bottom: 24px; }
-.calc-label { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 700; margin-bottom: 12px; display: block; }
-.calc-select { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--bone); font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 1rem; color: var(--ink); outline: none; cursor: pointer; transition: border-color 0.3s; appearance: none; }
-.calc-select:focus { border-color: var(--ink); }
-.calc-result { background: var(--ink); color: var(--bone); padding: 24px; border-radius: 16px; text-align: center; margin-top: 32px; overflow: hidden; }
-.calc-result span { display: block; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.8rem; color: var(--clay); letter-spacing: 0.1em; margin-bottom: 8px; text-transform: uppercase; }
-.calc-result strong { font-family: var(--font-fraunces), Georgia, serif; font-size: 2.2rem; font-weight: 300; display: block; transition: opacity 0.35s var(--ease), transform 0.35s var(--ease); }
-.calc-result strong.swap { opacity: 0; transform: translateY(12px); }
 
-/* Contact form — shares the calculator's card idiom */
+/* Contact form card */
 .form-widget {
   background: var(--bone-2); border: 1px solid var(--line); border-radius: 24px;
   padding: 40px; max-width: 600px; margin: 0 auto 32px; text-align: left;
@@ -335,8 +323,6 @@ section:not(.hero) { padding: 130px 0; position: relative; }
 .form-note.show { opacity: 1; transform: none; }
 .form-note.ok { color: var(--ink-soft); }
 .form-note.bad { color: var(--clay); }
-.spin { width: 15px; height: 15px; border: 1.5px solid rgba(250,248,245,0.35); border-top-color: var(--bone); border-radius: 50%; animation: spin 0.7s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Direct call CTA */
 .call-row { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 8px; }
@@ -402,7 +388,7 @@ footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
   .tst-slide { position: absolute; }
   .tst-slide.active { position: relative; }
 
-  .form-widget, .calc-widget { padding: 28px 22px; }
+  .form-widget { padding: 28px 22px; }
   .foot-top { grid-template-columns: 1fr; gap: 48px; }
   section:not(.hero) { padding: 90px 0; }
 }

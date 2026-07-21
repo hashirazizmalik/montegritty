@@ -1,0 +1,21 @@
+{
+  "name": "montegritty",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Montegritty — Enterprise Digital Solutions",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^15.5.20",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "three": "0.172.0"
+  },
+  "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.12"
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Logo from './Logo';
 
 const LINKS = [
@@ -13,6 +13,7 @@ const LINKS = [
 export default function Header() {
   const [solid, setSolid] = useState(false);
   const [open, setOpen] = useState(false);
+  const navRef = useRef(null);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 40);
@@ -33,19 +34,39 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Tapping a link triggers an instant browser anchor-jump while the page's
+  // own viewport is briefly unstable (mobile toolbar show/hide during the
+  // scroll) — which throws off the panel's `translateY(-100%)`, since that
+  // percentage is relative to the panel's own (viewport-driven) height. A
+  // transition:none jump still lands on that moving target. display:none has
+  // no percentage math and no animation to land badly, so it can't glitch.
+  const closeForNav = () => {
+    const el = navRef.current;
+    if (el) el.style.display = 'none';
+    setOpen(false);
+  };
+
+  // Restore normal rendering before the burger's own toggle, so the slide
+  // animation still works when the menu is reopened.
+  const toggleBurger = () => {
+    const el = navRef.current;
+    if (el) el.style.display = '';
+    setOpen((v) => !v);
+  };
+
   return (
     <header className={solid ? 'solid' : ''}>
       <div className="wrap nav">
         <Logo />
-        <nav className={`navlinks${open ? ' open' : ''}`} id="menu">
+        <nav className={`navlinks${open ? ' open' : ''}`} id="menu" ref={navRef}>
           {LINKS.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)}>{l.label}</a>
+            <a key={l.href} href={l.href} onClick={closeForNav}>{l.label}</a>
           ))}
-          <a href="#contact" className="nav-cta" onClick={() => setOpen(false)}>Start a project</a>
+          <a href="#contact" className="nav-cta" onClick={closeForNav}>Start a project</a>
         </nav>
         <button
           className={`burger${open ? ' x' : ''}`}
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggleBurger}
           aria-label={open ? 'Close menu' : 'Open menu'}
           aria-expanded={open}
           aria-controls="menu"

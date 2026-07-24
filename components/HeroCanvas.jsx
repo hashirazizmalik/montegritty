@@ -32,9 +32,25 @@ export default function HeroCanvas() {
 
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+      // antialias is a real per-frame cost and buys nothing visible here — these
+      // are small (0.115–0.2), semi-transparent, fog-faded point sprites, and the
+      // page's own noise-texture overlay already masks any hard edges.
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'low-power' });
     } catch {
       return; // no WebGL — fall back to the static grid
+    }
+
+    // Software-rendered WebGL (SwiftShader, llvmpipe, a VM with no real GPU
+    // passthrough) rasterizes on the CPU — no scene-complexity reduction gets
+    // that to a sustained 60fps, it just trades one stutter for a smaller one.
+    // Bail out to the static grid rather than animate at 12–15fps.
+    const dbgInfo = renderer.getContext().getExtension('WEBGL_debug_renderer_info');
+    if (dbgInfo) {
+      const rendererStr = renderer.getContext().getParameter(dbgInfo.UNMASKED_RENDERER_WEBGL) || '';
+      if (/swiftshader|software|llvmpipe|basic render|virtualbox|vmware/i.test(rendererStr)) {
+        renderer.dispose();
+        return;
+      }
     }
 
     const scene = new THREE.Scene();
@@ -108,6 +124,7 @@ export default function HeroCanvas() {
     // --- loop ---------------------------------------------------------------
     let raf = 0;
     let running = true;
+    let frame = 0;
     const clock = new THREE.Clock();
 
     const animate = () => {
@@ -115,6 +132,7 @@ export default function HeroCanvas() {
       if (!running) return;
 
       const t = clock.getElapsedTime();
+      frame++;
 
       // ease the pointer so parallax never snaps
       pointer.x += (target.x - pointer.x) * 0.035;
@@ -123,14 +141,20 @@ export default function HeroCanvas() {
       group.rotation.y = t * 0.028 + pointer.x * 0.18;
       group.rotation.x = Math.sin(t * 0.15) * 0.05 - pointer.y * 0.11;
 
-      // gentle independent bob per point
-      for (const cloud of [field, nodes]) {
-        const attr = cloud.geometry.attributes.position;
-        const { drift, base } = cloud.userData;
-        for (let i = 0; i < drift.length; i++) {
-          attr.array[i * 3 + 1] = base[i * 3 + 1] + Math.sin(t * 0.35 + drift[i]) * 0.42;
+      // The bob is slow and subtle, so refreshing it at ~20fps instead of every
+      // frame is imperceptible — but each refresh re-uploads the whole position
+      // buffer to the GPU, which was the dominant per-frame cost (the rotation
+      // above is a cheap transform and stays at full rate). This is what was
+      // dragging scroll frame times up while the hero was in view.
+      if (frame % 3 === 0) {
+        for (const cloud of [field, nodes]) {
+          const attr = cloud.geometry.attributes.position;
+          const { drift, base } = cloud.userData;
+          for (let i = 0; i < drift.length; i++) {
+            attr.array[i * 3 + 1] = base[i * 3 + 1] + Math.sin(t * 0.35 + drift[i]) * 0.42;
+          }
+          attr.needsUpdate = true;
         }
-        attr.needsUpdate = true;
       }
 
       renderer.render(scene, camera);

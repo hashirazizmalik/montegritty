@@ -19,9 +19,9 @@ export default function Hero() {
         </h1>
         <div className="hero-sub">
           <p>
-            Montegritty designs, builds, and implements software, AI, and growth systems for
-            operations that can&rsquo;t afford to break. We turn tangled processes into
-            infrastructure you can trust.
+            Montegritty designs, builds, and implements custom software, ERP &amp; CRM
+            implementation, and AI automation for operations worldwide that can&rsquo;t afford
+            to break. We turn tangled processes into infrastructure you can trust.
           </p>
           <div className="hero-actions">
             <a href="#contact" className="btn">Begin the conversation <span className="arr">↗</span></a>

@@ -145,7 +145,7 @@ section:not(.hero) { padding: 130px 0; position: relative; }
 .umb-head:focus-visible { outline: 2px solid var(--clay); outline-offset: -2px; border-radius: 12px; }
 .umb-num { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.9rem; font-weight: 700; color: var(--muted); transition: color 0.5s; }
 .umb.open .umb-num { color: var(--clay); }
-.umb-name { font-family: var(--font-fraunces), Georgia, serif; font-size: clamp(1.9rem, 3.4vw, 3rem); font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; }
+.umb-name { margin: 0; font-family: var(--font-fraunces), Georgia, serif; font-size: clamp(1.9rem, 3.4vw, 3rem); font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; }
 .umb-name em { font-style: italic; color: var(--clay); }
 .umb-count { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
 .umb-toggle {
@@ -190,7 +190,7 @@ section:not(.hero) { padding: 130px 0; position: relative; }
 .svc:hover .svc-num, .svc:hover .svc-name, .svc:hover .svc-desc, .svc:hover .svc-go { color: var(--bone); }
 .svc:hover .svc-go { border-color: var(--bone); transform: rotate(45deg); }
 .svc-num { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; color: var(--muted); transition: color 0.5s; }
-.svc-name { font-family: var(--font-fraunces), Georgia, serif; font-size: clamp(1.25rem, 2vw, 1.65rem); font-weight: 300; letter-spacing: -0.01em; transition: color 0.5s; }
+.svc-name { margin: 0; font-family: var(--font-fraunces), Georgia, serif; font-size: clamp(1.25rem, 2vw, 1.65rem); font-weight: 300; letter-spacing: -0.01em; transition: color 0.5s; }
 .svc-desc { font-size: 0.95rem; color: var(--muted); max-width: 44ch; transition: color 0.5s; justify-self: start; line-height: 1.6; }
 .svc-mid { display: flex; flex-direction: column; }
 .svc-go {

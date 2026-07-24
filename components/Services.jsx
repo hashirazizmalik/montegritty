@@ -35,7 +35,7 @@ export default function Services() {
                   id={`tab-${u.id}`}
                 >
                   <span className="umb-num">{u.num}</span>
-                  <span className="umb-name">{u.name}</span>
+                  <h3 className="umb-name">{u.name}</h3>
                   <span className="umb-count">
                     {u.services.length} service{u.services.length > 1 ? 's' : ''}
                   </span>
@@ -59,7 +59,7 @@ export default function Services() {
                               {u.num}.{String(j + 1).padStart(2, '0')}
                             </span>
                             <span className="svc-mid">
-                              <span className="svc-name">{s.name}</span>
+                              <h4 className="svc-name">{s.name}</h4>
                             </span>
                             <span className="svc-desc">{s.desc}</span>
                             <span className="svc-go" aria-hidden="true">↗</span>

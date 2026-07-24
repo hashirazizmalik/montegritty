@@ -1,4 +1,6 @@
 import { Fraunces, Plus_Jakarta_Sans, Space_Mono } from 'next/font/google';
+import { SITE_URL } from '@/lib/seo';
+import OrganizationSchema from '@/components/OrganizationSchema';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -23,22 +25,24 @@ const spaceMono = Space_Mono({
   variable: '--font-mono',
 });
 
-const SITE = 'https://montegritty.com';
-
 export const metadata = {
-  metadataBase: new URL(SITE),
+  metadataBase: new URL(SITE_URL),
   title: 'Montegritty — Enterprise Digital Solutions',
   description:
-    'Montegritty designs, builds, and implements software, AI, and growth systems for operations that can’t afford to break. Development, AI & machine learning, and digital marketing.',
+    'Montegritty designs, builds, and implements custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
   keywords: [
-    'ERP implementation', 'CRM implementation', 'custom software', 'agentic AI',
-    'AI automation', 'computer vision', 'web development', 'UI/UX', 'Meta ads',
+    'ERP implementation', 'CRM implementation', 'custom software development',
+    'agentic AI', 'AI automation', 'computer vision', 'web development',
+    'UI/UX design', 'Meta ads agency',
   ],
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Montegritty — Enterprise Digital Solutions',
     description:
-      'Software, AI, and growth systems for operations that can’t afford to break.',
-    url: SITE,
+      'Custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
+    url: SITE_URL,
     siteName: 'Montegritty',
     type: 'website',
   },
@@ -46,7 +50,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'Montegritty — Enterprise Digital Solutions',
     description:
-      'Software, AI, and growth systems for operations that can’t afford to break.',
+      'Custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
   },
   robots: { index: true, follow: true },
 };
@@ -60,7 +64,10 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${fraunces.variable} ${jakarta.variable} ${spaceMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <OrganizationSchema />
+        {children}
+      </body>
     </html>
   );
 }

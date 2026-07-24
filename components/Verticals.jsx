@@ -6,10 +6,13 @@ export default function Verticals() {
     <section id="verticals">
       <div className="wrap">
         <Reveal className="shead">
-          <h2>Where we go <em>deep</em></h2>
+          <div>
+            <span className="eyebrow" style={{ marginBottom: 16, display: 'inline-flex' }}>Where we go deep</span>
+            <h2>Industries we <em>build for</em></h2>
+          </div>
           <p>
             We don&rsquo;t build for everyone — but across physical operations and
-            digital-first brands alike, we&rsquo;ve concentrated real expertise where
+            digital-first brands worldwide, we&rsquo;ve concentrated real expertise where
             complexity is highest and the cost of failure is real.
           </p>
         </Reveal>

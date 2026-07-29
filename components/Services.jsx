@@ -54,7 +54,11 @@ export default function Services() {
                     <div className="umb-sub">
                       <div className="svc-list">
                         {u.services.map((s, j) => (
-                          <a className="svc" key={s.name} href="#contact">
+                          <a
+                            className="svc"
+                            key={s.name}
+                            href={u.id === 'voice-agents' ? '#voice-models' : '#contact'}
+                          >
                             <span className="svc-num">
                               {u.num}.{String(j + 1).padStart(2, '0')}
                             </span>

@@ -34,10 +34,6 @@ export default function Footer() {
         </div>
         <div className="foot-bottom">
           <span className="copy">© {new Date().getFullYear()} Montegritty. All rights reserved.</span>
-          <a className="parent" href="#top">
-            <span className="pz">Z</span>
-            <span className="ptxt">A <b>Zoue Tech</b> company</span>
-          </a>
         </div>
       </div>
     </footer>

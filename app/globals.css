@@ -395,11 +395,6 @@ footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
 .foot-col a:hover { color: var(--bone); }
 .foot-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 40px; flex-wrap: wrap; gap: 20px; }
 .foot-bottom .copy { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.8rem; color: rgba(250, 248, 245, 0.5); letter-spacing: 0.05em; }
-.parent { display: inline-flex; align-items: center; gap: 12px; border: 1px solid rgba(250, 248, 245, 0.2); border-radius: 40px; padding: 10px 20px; transition: border-color 0.4s, background 0.4s; }
-.parent:hover { border-color: var(--clay); background: rgba(200, 75, 49, 0.15); }
-.parent .pz { width: 26px; height: 26px; border-radius: 8px; background: var(--clay); display: flex; align-items: center; justify-content: center; font-family: var(--font-fraunces), Georgia, serif; color: var(--bone); font-size: 1rem; flex-shrink: 0; }
-.parent .ptxt { font-size: 0.85rem; color: rgba(250, 248, 245, 0.8); }
-.parent .ptxt b { color: var(--bone); font-weight: 600; }
 
 @media(max-width: 1180px) and (min-width: 981px) {
   .vert-grid { grid-template-columns: 1fr 1fr; }

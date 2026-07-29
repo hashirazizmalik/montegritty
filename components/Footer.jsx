@@ -24,6 +24,9 @@ export default function Footer() {
           <div className="foot-col">
             <h4>Reach us</h4>
             <a href={CONTACT.phoneLink}>{CONTACT.phoneDisplay}</a>
+            <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
+              WhatsApp {CONTACT.whatsappDisplay}
+            </a>
             <p>{CONTACT.hours}</p>
             <p>Remote-first, globally available</p>
           </div>

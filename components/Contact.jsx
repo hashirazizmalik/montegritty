@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CONTACT } from '@/lib/content';
 import Reveal from './Reveal';
 import PhoneIcon from './PhoneIcon';
+import WhatsAppIcon from './WhatsAppIcon';
 
 const EMPTY = { name: '', email: '', company: '', message: '' };
 
@@ -99,10 +100,14 @@ export default function Contact() {
         </form>
 
         <div className="call-row">
-          <span className="call-sep">or call us directly</span>
+          <span className="call-sep">or reach us directly</span>
           <a className="call-btn" href={CONTACT.phoneLink}>
             <PhoneIcon />
             <span className="num">{CONTACT.phoneDisplay}</span>
+          </a>
+          <a className="call-btn whatsapp" href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
+            <WhatsAppIcon />
+            <span className="num">{CONTACT.whatsappDisplay}</span>
           </a>
         </div>
       </Reveal>

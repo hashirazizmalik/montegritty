@@ -16,6 +16,7 @@ export default function Footer() {
           <div className="foot-col">
             <h4>Navigate</h4>
             <a href="#services">Services</a>
+            <a href="#voice-models">Voice AI</a>
             <a href="#process">Process</a>
             <a href="#verticals">Verticals</a>
             <a href="#testimonials">Clients</a>

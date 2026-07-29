@@ -5,6 +5,7 @@ import Logo from './Logo';
 
 const LINKS = [
   { href: '#services', label: 'Services' },
+  { href: '#voice-models', label: 'Voice AI' },
   { href: '#process', label: 'Process' },
   { href: '#verticals', label: 'Verticals' },
   { href: '#testimonials', label: 'Clients' },

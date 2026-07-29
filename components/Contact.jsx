@@ -18,7 +18,6 @@ function buildWhatsAppMessage({ name, email, company, message }) {
 export default function Contact() {
   const [form, setForm] = useState(EMPTY);
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | sent | error
   const [note, setNote] = useState('');
 
   const set = (k) => (e) => {
@@ -44,16 +43,18 @@ export default function Contact() {
 
     // window.open must fire synchronously inside the click handler — no fetch or
     // await before it — or browsers treat it as an unrequested popup and block it.
-    const win = window.open(url, '_blank', 'noopener,noreferrer');
-
-    if (win) {
-      setStatus('sent');
-      setNote('WhatsApp opened in a new tab — send the message there to finish your enquiry.');
-      setForm(EMPTY);
-    } else {
-      setStatus('error');
-      setNote('Your browser blocked the popup — use the WhatsApp button below instead.');
-    }
+    //
+    // We deliberately don't branch on the return value here: with 'noopener' set,
+    // window.open() returns null on both success AND failure (per spec — noopener
+    // means "don't give the caller a handle to the new window", and null is how
+    // that's expressed), so treating a null return as "blocked" produced a false
+    // error message on every single successful submission. A synchronous,
+    // click-triggered open like this is essentially never actually blocked by
+    // modern popup blockers — those target async/delayed opens — so we show
+    // success unconditionally instead of trusting an unreliable signal.
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setNote('WhatsApp opened in a new tab — send the message there to finish your enquiry.');
+    setForm(EMPTY);
   };
 
   return (
@@ -93,7 +94,7 @@ export default function Contact() {
 
           <div className="form-foot">
             <button type="submit" className="btn">Send via WhatsApp <span className="arr">↗</span></button>
-            <span className={`form-note ${status === 'error' ? 'bad' : 'ok'}${note ? ' show' : ''}`} role="status">
+            <span className={`form-note ok${note ? ' show' : ''}`} role="status">
               {note}
             </span>
           </div>

@@ -1,21 +1,10 @@
+import Link from 'next/link';
 import { VERTICALS, VERTICALS_ALSO } from '@/lib/content';
 import Reveal from './Reveal';
 
 export default function Verticals() {
   return (
-    <section id="verticals">
-      <div className="wrap">
-        <Reveal className="shead">
-          <div>
-            <span className="eyebrow" style={{ marginBottom: 16, display: 'inline-flex' }}>Where we go deep</span>
-            <h2>Industries we <em>build for</em></h2>
-          </div>
-          <p>
-            We don&rsquo;t build for everyone — but across physical operations and
-            digital-first brands worldwide, we&rsquo;ve concentrated real expertise where
-            complexity is highest and the cost of failure is real.
-          </p>
-        </Reveal>
+    <div className="wrap">
         <div className="vert-grid">
           {VERTICALS.map((v, i) => (
             <Reveal className="vert" key={v.idx} delay={(i % 3) * 0.1}>
@@ -34,11 +23,10 @@ export default function Verticals() {
           <span className="vert-also-label">Also built for</span>
           <div className="vert-also-pills">
             {VERTICALS_ALSO.map((label) => (
-              <a href="#contact" key={label}>{label}</a>
+              <Link href="/contact" key={label}>{label}</Link>
             ))}
           </div>
         </Reveal>
-      </div>
-    </section>
+    </div>
   );
 }

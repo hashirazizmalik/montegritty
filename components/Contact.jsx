@@ -58,14 +58,8 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="cta">
+    <section id="contact" className="cta" style={{ paddingTop: 70 }}>
       <Reveal className="wrap">
-        <span className="eyebrow" style={{ justifyContent: 'center', display: 'flex', marginBottom: 24 }}>
-          Get in touch
-        </span>
-        <h2>Bring us the process<br />that <em>keeps you up</em> at night.</h2>
-        <p>Tell us what you&rsquo;re dealing with and we&rsquo;ll pick it up on WhatsApp.</p>
-
         <form className="form-widget" onSubmit={submit} noValidate>
           <div className="calc-head"><h3>Start the conversation</h3></div>
 
@@ -87,8 +81,8 @@ export default function Contact() {
           </div>
 
           <div className={`field${errors.message ? ' err' : ''}`}>
-            <label htmlFor="cf-message">What are you trying to fix?</label>
-            <textarea id="cf-message" value={form.message} onChange={set('message')} placeholder="Describe the process, system, or bottleneck…" />
+            <label htmlFor="cf-message">Which call would you hand over first?</label>
+            <textarea id="cf-message" value={form.message} onChange={set('message')} placeholder="e.g. we call every COD order to confirm it, about 400 a day, and still get 25% returns…" />
             {errors.message && <span className="msg">{errors.message}</span>}
           </div>
 

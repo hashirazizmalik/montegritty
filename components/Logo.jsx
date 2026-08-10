@@ -1,4 +1,4 @@
-export default function Logo({ className = 'logo', href = '#top' }) {
+export default function Logo({ className = 'logo', href = '/' }) {
   return (
     <a href={href} className={className}>
       <svg className="mark" viewBox="0 0 30 30" aria-hidden="true">

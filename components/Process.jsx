@@ -21,8 +21,7 @@ export default function Process() {
   }, []);
 
   return (
-    <section id="process">
-      <div className="wrap">
+    <div className="wrap">
         <Reveal className="proc-wrap">
           <div className="proc-deco" />
           <span className="eyebrow">How we work</span>
@@ -38,7 +37,6 @@ export default function Process() {
             ))}
           </div>
         </Reveal>
-      </div>
-    </section>
+    </div>
   );
 }

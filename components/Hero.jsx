@@ -1,6 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+import { HERO } from '@/lib/content';
 
 // WebGL is browser-only; keep it out of the server render entirely.
 const HeroCanvas = dynamic(() => import('./HeroCanvas'), { ssr: false });
@@ -11,27 +13,30 @@ export default function Hero() {
       <div className="hero-grid" />
       <HeroCanvas />
       <div className="wrap">
-        <span className="eyebrow hero-tag">Enterprise digital solutions</span>
+        <span className="eyebrow hero-tag">{HERO.eyebrow}</span>
         <h1>
-          <span className="ln"><span>Systems that</span></span>
-          <span className="ln"><span>carry the weight</span></span>
-          <span className="ln"><span>of <em>real work.</em></span></span>
+          {HERO.lines.map((l) => (
+            <span className="ln" key={l}><span>{l}</span></span>
+          ))}
+          <span className="ln">
+            <span>{HERO.lastLine}<em>{HERO.lastLineEm}</em></span>
+          </span>
         </h1>
         <div className="hero-sub">
-          <p>
-            Montegritty designs, builds, and implements custom software, ERP &amp; CRM
-            implementation, and AI automation for operations worldwide that can&rsquo;t afford
-            to break. We turn tangled processes into infrastructure you can trust.
-          </p>
+          <p>{HERO.lede}</p>
           <div className="hero-actions">
-            <a href="#contact" className="btn">Begin the conversation <span className="arr">↗</span></a>
-            <a href="#services" className="btn-ghost">Explore services</a>
+            <Link href={HERO.primary.href} className="btn">
+              {HERO.primary.label} <span className="arr">↗</span>
+            </Link>
+            <Link href={HERO.secondary.href} className="btn-ghost">
+              {HERO.secondary.label}
+            </Link>
           </div>
         </div>
       </div>
       <div className="hero-stats">
-        <div className="big serif">13</div>
-        <div className="mono">services, three disciplines</div>
+        <div className="big serif">{HERO.statBig}</div>
+        <div className="mono">{HERO.statLabel}</div>
       </div>
     </section>
   );

@@ -1,14 +1,25 @@
 import { SITE_URL } from '@/lib/seo';
+import { AGENTS } from '@/lib/agents';
 
 export default function sitemap() {
-  // Single page today. Add an entry here for every new route as the site
-  // grows into dedicated service/industry pages and a blog.
+  const now = new Date();
+  const page = (path, priority) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority,
+  });
+
   return [
-    {
-      url: SITE_URL,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 1,
-    },
+    page('', 1),
+    page('/solutions', 0.9),
+    page('/voice-agents', 0.9),
+    page('/industries', 0.8),
+    page('/process', 0.7),
+    page('/contact', 0.7),
+    page('/voice-agents/dashboard', 0.6),
+    // One entry per demo agent — each is a real landing page for its vertical
+    // ("Urdu voice agent for COD confirmation" and so on).
+    ...AGENTS.map((a) => page(`/voice-agents/${a.id}`, 0.7)),
   ];
 }

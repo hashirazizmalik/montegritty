@@ -1,4 +1,4 @@
-import { Fraunces, Plus_Jakarta_Sans, Space_Mono } from 'next/font/google';
+import { Fraunces, Plus_Jakarta_Sans, Space_Mono, Noto_Nastaliq_Urdu } from 'next/font/google';
 import { SITE_URL } from '@/lib/seo';
 import OrganizationSchema from '@/components/OrganizationSchema';
 import './globals.css';
@@ -25,32 +25,46 @@ const spaceMono = Space_Mono({
   variable: '--font-mono',
 });
 
+// Urdu is set in Nastaliq, not a naskh fallback. A Pakistani buyer reads the
+// difference immediately — naskh Urdu looks like machine output. Only loaded
+// where it's used (voice agent transcripts and the operations dashboard), but
+// declared here so the variable exists site-wide.
+const nastaliq = Noto_Nastaliq_Urdu({
+  subsets: ['arabic'],
+  weight: ['400', '500'],
+  display: 'swap',
+  variable: '--font-urdu',
+});
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Montegritty — Enterprise Digital Solutions',
+  title: {
+    default: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
+    template: '%s',
+  },
   description:
-    'Montegritty designs, builds, and implements custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
+    'Montegritty builds voice agents that make and take phone calls in Urdu, Pashto and Sindhi — plus the custom speech models underneath them and the automation that wires them into your systems.',
   keywords: [
-    'ERP implementation', 'CRM implementation', 'custom software development',
-    'agentic AI', 'AI automation', 'computer vision', 'web development',
-    'UI/UX design', 'Meta ads agency',
+    'Urdu voice agent', 'Pashto voice AI', 'voice AI Pakistan', 'AI call center Pakistan',
+    'text to speech Urdu', 'speech to text Urdu', 'custom voice model',
+    'COD confirmation calls', 'appointment reminder calls', 'AI voice automation',
   ],
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Montegritty — Enterprise Digital Solutions',
+    title: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
     description:
-      'Custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
+      'Voice agents that take the call in Urdu, Pashto and Sindhi. Hear eight of them handle a real conversation.',
     url: SITE_URL,
     siteName: 'Montegritty',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Montegritty — Enterprise Digital Solutions',
+    title: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
     description:
-      'Custom software, ERP & CRM implementation, and AI automation for operations worldwide that can’t afford to break.',
+      'Voice agents that take the call in Urdu, Pashto and Sindhi. Hear eight of them handle a real conversation.',
   },
   robots: { index: true, follow: true },
 };
@@ -63,7 +77,10 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${jakarta.variable} ${spaceMono.variable}`}>
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${jakarta.variable} ${spaceMono.variable} ${nastaliq.variable}`}
+    >
       <body>
         <OrganizationSchema />
         {children}

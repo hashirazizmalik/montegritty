@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { UMBRELLAS } from '@/lib/content';
 import Reveal from './Reveal';
 
@@ -8,25 +9,26 @@ export default function Services() {
   // first umbrella open on load so the section never reads as an empty list
   const [open, setOpen] = useState(UMBRELLAS[0].id);
 
+  // Footer and service links deep-link to a pillar (/solutions#voice-models).
+  // Open the one that was asked for rather than dumping the visitor at the top
+  // of a collapsed list.
+  useEffect(() => {
+    const id = window.location.hash.replace('#', '');
+    if (id && UMBRELLAS.some((u) => u.id === id)) {
+      setOpen(id);
+      document.getElementById(id)?.scrollIntoView({ block: 'start' });
+    }
+  }, []);
+
   const toggle = (id) => setOpen((cur) => (cur === id ? null : id));
 
   return (
-    <section id="services">
-      <div className="wrap">
-        <Reveal className="shead">
-          <h2>What we <em>build</em></h2>
-          <p>
-            Three disciplines, one mandate: give teams software that fits the way they actually
-            operate. No off-the-shelf compromises — every engagement is shaped around your
-            processes, your data, and your constraints.
-          </p>
-        </Reveal>
-
+    <div className="wrap">
         <div className="umb-list">
           {UMBRELLAS.map((u, i) => {
             const isOpen = open === u.id;
             return (
-              <Reveal key={u.id} className={`umb${isOpen ? ' open' : ''}`} delay={i * 0.08}>
+              <Reveal id={u.id} key={u.id} className={`umb${isOpen ? ' open' : ''}`} delay={i * 0.08}>
                 <button
                   className="umb-head"
                   onClick={() => toggle(u.id)}
@@ -35,7 +37,10 @@ export default function Services() {
                   id={`tab-${u.id}`}
                 >
                   <span className="umb-num">{u.num}</span>
-                  <h3 className="umb-name">{u.name}</h3>
+                  <span className="umb-mid">
+                    <h3 className="umb-name">{u.name}</h3>
+                    <span className="umb-lead">{u.lead}</span>
+                  </span>
                   <span className="umb-count">
                     {u.services.length} service{u.services.length > 1 ? 's' : ''}
                   </span>
@@ -54,11 +59,7 @@ export default function Services() {
                     <div className="umb-sub">
                       <div className="svc-list">
                         {u.services.map((s, j) => (
-                          <a
-                            className="svc"
-                            key={s.name}
-                            href={u.id === 'voice-agents' ? '#voice-models' : '#contact'}
-                          >
+                          <Link className="svc" key={s.name} href={s.href}>
                             <span className="svc-num">
                               {u.num}.{String(j + 1).padStart(2, '0')}
                             </span>
@@ -67,7 +68,7 @@ export default function Services() {
                             </span>
                             <span className="svc-desc">{s.desc}</span>
                             <span className="svc-go" aria-hidden="true">↗</span>
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -77,7 +78,6 @@ export default function Services() {
             );
           })}
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

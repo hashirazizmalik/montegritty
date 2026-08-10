@@ -1,6 +1,13 @@
 # Montegritty
 
-Marketing site for Montegritty — enterprise digital solutions.
+Marketing site for Montegritty — **voice AI for Pakistani operations**.
+
+We build voice agents that make and take phone calls in Urdu, Pashto and
+Sindhi, the custom speech models underneath them, and the automation that wires
+them into a client's existing systems. We do **not** sell ERP rollouts, CRM
+implementations, websites, or ad campaigns — the site was repositioned away
+from that. If you are editing copy, read the positioning note at the top of
+`lib/content.js` first.
 
 Rebuilt from a single static `index.html` into a Next.js App Router project.
 The original file is preserved untouched at [`legacy/index.html`](legacy/index.html)
@@ -34,41 +41,141 @@ npm start          # serve the production build
 
 ```
 app/
-  layout.js            fonts, metadata, <html> shell
-  page.js               section composition
-  globals.css           the entire design system
-components/              one file per section
-lib/content.js           ALL site copy — edit here, not in components
-legacy/index.html        the original single-file site
+  layout.js                    fonts, metadata, <html> shell
+  globals.css                  the entire design system
+  page.js                      home — introduces and routes, does not contain the site
+  solutions/                   the three pillars in full
+  industries/                  where voice agents earn their keep
+  process/                     how an engagement runs + pilot terms
+  contact/                     enquiry form
+  voice-agents/                demo index
+    [slug]/                    one page per demo agent
+    dashboard/                 Urdu operations dashboard
+components/                    one file per section, shared across routes
+lib/content.js                 ALL site copy — edit here, not in components
+lib/agents.js                  GENERATED demo agents — see tools/voice-agents/
+lib/dashboard.js               sample data for the Urdu dashboard
+legacy/index.html              the original single-file site
 ```
+
+## Information architecture
+
+The home page **introduces and routes**; it does not contain everything. Each
+section there is a teaser that links to the page which holds the full version:
+
+| Home section | Links to |
+| ------------ | -------- |
+| Pillars (3 cards) | `/solutions` — the full accordion, 14 services |
+| Featured agents (4 of 8) | `/voice-agents` — all eight + the dashboard |
+| Why voice | (self-contained, sourced) |
+| Your agent is not on this page | `/contact` |
+
+`/industries` and `/process` are reachable from the nav and footer. Adding a
+section to the home page is almost always the wrong move — give it a route.
 
 Copy lives in `lib/content.js` on purpose. Changing a service name, a
 testimonial, or the phone/WhatsApp number means editing one object, not
 hunting through JSX.
 
+## Voice agent demos
+
+Eight working Urdu voice agents live at `/voice-agents`, each with its own page
+(`/voice-agents/<id>`) carrying a full recorded call and a bilingual transcript.
+There is also an Urdu operations dashboard at `/voice-agents/dashboard`.
+
+**Positioning is deliberate and load-bearing.** These are demonstrations of work
+we have built, not a catalogue to order from — the copy in `VOICE_AGENTS`
+(`lib/content.js`) and the `CustomAgentPanel` that follows every gallery both
+exist to make sure nobody reads the eight as a product menu. Keep that framing
+if you edit the copy.
+
+### How it fits together
+
+```
+tools/voice-agents/
+  agents.py          personas, Urdu call scripts, KPIs, pricing  ← source of truth
+  translations.py    English gloss for every line, same order
+  generate.py        synthesises each line via Uplift AI Orator, stitches with ffmpeg
+  export_js.py       agents.py + translations.py + timings.json → lib/agents.js
+  timings.json       generated: start offset of every turn
+  .cache/            per-line clips, gitignored — makes a rerun incremental
+
+public/voice/        16 finished MP3s (8 calls, 8 greetings), served statically
+lib/agents.js        GENERATED — do not hand-edit
+lib/dashboard.js     sample data for the Urdu dashboard
+```
+
+Each line of a call is synthesised separately — the agent in its own voice, the
+caller in a second one — then stitched into a single MP3. That is what makes the
+demo sound like a conversation instead of a monologue, and because each clip's
+duration is known, `lib/agents.js` also carries the exact start time of every
+turn. The transcript therefore seeks and highlights in sync with **no alignment
+model**: `CallPlayer` just compares `currentTime` against `turn.at`.
+
+### Regenerating
+
+Only needed after editing a script, a voice, or a persona:
+
+```bash
+export UPLIFT_API_KEY=sk_api_...        # never commit this
+cd tools/voice-agents
+python3 generate.py                     # only re-synthesises what changed
+python3 export_js.py                    # refresh lib/agents.js
+```
+
+`generate.py` needs `ffmpeg` and `requests`. Audio is `MP3_22050_64` — about
+600 KB for a 75-second call, which is why it is served as files rather than
+inlined.
+
+### Numbers on these pages
+
+Market statistics (literacy, COD return rates, BPO costs) are sourced and
+public. The **per-agent impact figures are modelled targets** from published
+industry benchmarks, not measured results from a live deployment. The demo index
+says so in `VOICE_AGENTS.disclosure` and each agent page repeats it above the
+KPIs. Do not turn them into contractual guarantees before a real pilot produces
+its own numbers.
+
+### Urdu typography
+
+Urdu is set in Noto Nastaliq Urdu (`--font-urdu`, loaded in `app/layout.js` via
+`next/font`, self-hosted like the rest). A naskh fallback reads as machine
+output to a Pakistani buyer, which defeats the point of the demo. The dashboard
+sets `direction: rtl` on its own shell only — figures stay in Latin digits,
+isolated with `unicode-bidi`, which is what Pakistani operations software
+actually does.
+
 ## Services
 
-Thirteen services under three umbrellas, rendered as an accordion
+Fourteen services under three pillars, rendered as an accordion
 (`components/Services.jsx`, data in `lib/content.js`):
 
-- **Development** — Web Development, Application Development, ERP Implementation, CRM Implementation, Custom Software
-- **AI & Machine Learning** — Agentic AI, AI Automation, Custom Model Development, Computer Vision, Custom Finetuning & Voice Models
-- **Digital Marketing** — UI/UX, Social Media Management, Meta Ads
+- **Voice Agents** — Inbound Support, Order & Delivery Confirmation, Appointment
+  & Booking, Payment Reminders & Collections, Lead Qualification, Outreach & Survey
+- **Voice Models** — Custom Voice Finetuning, Native Language Models, Self-Hosted
+  Deployment, Cloud-Hosted Deployment
+- **Automation & Integration** — Systems Integration, Workflow Automation,
+  Agentic Back-Office, Operations Dashboards
 
-## ⚠️ Testimonials — read before going live
+Each service carries its own `href`, so a service row can link to the demo that
+proves it. Footer links deep-link into a pillar (`/solutions#voice-models`) and
+the accordion opens that pillar on load.
 
-The testimonials in `lib/content.js` are **draft copy**, attributed to real,
-named people at real companies:
+## ⚠️ Testimonials — currently not rendered
 
-- Haris — Skinbird
-- Hamza Abdul Sattar — Zoue Tech
-- Huzaifa Awan — Cortex
-- Shakir Shehzad — Shakir & Associates
+`<Testimonials />` is deliberately **absent from every page**. The data is still
+in `lib/content.js` because the component works and the quotes may be salvageable,
+but two things block it:
 
-**None of these people said these words.** Get written sign-off from each of
-them, and replace any quote they'd like worded differently, before this
-section is published. Publishing invented quotes under a real person's name
-and title is a reputational and legal problem, not a placeholder detail.
+1. The quotes are **invented**, attributed to real, named people at real
+   companies — Haris (Skinbird), Huzaifa Awan (Cortex), Shakir Shehzad (Shakir &
+   Associates). None of them said these words. Publishing that under a real
+   person's name is a legal and reputational problem, not a placeholder detail.
+2. They describe ERP and data-pipeline engagements, which is **no longer what
+   Montegritty sells**. Even with sign-off they would misrepresent the offer.
+
+To bring the section back: get written sign-off on quotes about voice work, then
+re-add `<Testimonials />` to `app/page.js`.
 
 ## Contact
 

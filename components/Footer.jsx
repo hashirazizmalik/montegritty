@@ -1,4 +1,5 @@
-import { CONTACT } from '@/lib/content';
+import Link from 'next/link';
+import { CONTACT, FOOTER } from '@/lib/content';
 import Logo from './Logo';
 
 export default function Footer() {
@@ -7,21 +8,19 @@ export default function Footer() {
       <div className="wrap">
         <div className="foot-top">
           <div className="foot-brand">
-            <Logo />
-            <p>
-              Enterprise digital solutions for operations that can&rsquo;t afford to break.
-              Software, AI, and growth systems — built with rigor.
-            </p>
+            <Logo href="/" />
+            <p>{FOOTER.blurb}</p>
           </div>
-          <div className="foot-col">
-            <h4>Navigate</h4>
-            <a href="#services">Services</a>
-            <a href="#voice-models">Voice AI</a>
-            <a href="#process">Process</a>
-            <a href="#verticals">Verticals</a>
-            <a href="#testimonials">Clients</a>
-            <a href="#contact">Contact</a>
-          </div>
+
+          {FOOTER.columns.map((col) => (
+            <div className="foot-col" key={col.title}>
+              <h4>{col.title}</h4>
+              {col.links.map((l) => (
+                <Link href={l.href} key={l.href}>{l.label}</Link>
+              ))}
+            </div>
+          ))}
+
           <div className="foot-col">
             <h4>Reach us</h4>
             <a href={CONTACT.phoneLink}>{CONTACT.phoneDisplay}</a>
@@ -29,11 +28,12 @@ export default function Footer() {
               WhatsApp {CONTACT.whatsappDisplay}
             </a>
             <p>{CONTACT.hours}</p>
-            <p>Remote-first, globally available</p>
+            <p>Pakistan-based, remote-first</p>
           </div>
         </div>
         <div className="foot-bottom">
           <span className="copy">© {new Date().getFullYear()} Montegritty. All rights reserved.</span>
+          <span className="copy">Voice AI · Urdu · Pashto · Sindhi · English</span>
         </div>
       </div>
     </footer>

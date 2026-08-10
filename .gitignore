@@ -33,3 +33,7 @@ yarn-error.log*
 # editor
 .idea/
 .vscode/
+
+# voice-agent toolchain: per-line synthesis cache, rebuilt on demand
+/tools/voice-agents/.cache/
+__pycache__/

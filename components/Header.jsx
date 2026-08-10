@@ -1,15 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { NAV } from '@/lib/content';
 import Logo from './Logo';
-
-const LINKS = [
-  { href: '#services', label: 'Services' },
-  { href: '#voice-models', label: 'Voice AI' },
-  { href: '#process', label: 'Process' },
-  { href: '#verticals', label: 'Verticals' },
-  { href: '#testimonials', label: 'Clients' },
-];
 
 export default function Header() {
   const [solid, setSolid] = useState(false);
@@ -35,12 +29,12 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Tapping a link triggers an instant browser anchor-jump while the page's
-  // own viewport is briefly unstable (mobile toolbar show/hide during the
-  // scroll) — which throws off the panel's `translateY(-100%)`, since that
-  // percentage is relative to the panel's own (viewport-driven) height. A
-  // transition:none jump still lands on that moving target. display:none has
-  // no percentage math and no animation to land badly, so it can't glitch.
+  // Tapping a link triggers an instant browser navigation while the page's own
+  // viewport is briefly unstable (mobile toolbar show/hide during the scroll) —
+  // which throws off the panel's `translateY(-100%)`, since that percentage is
+  // relative to the panel's own (viewport-driven) height. A transition:none jump
+  // still lands on that moving target. display:none has no percentage math and
+  // no animation to land badly, so it can't glitch.
   const closeForNav = () => {
     const el = navRef.current;
     if (el) el.style.display = 'none';
@@ -58,12 +52,12 @@ export default function Header() {
   return (
     <header className={solid ? 'solid' : ''}>
       <div className="wrap nav">
-        <Logo />
+        <Logo href="/" />
         <nav className={`navlinks${open ? ' open' : ''}`} id="menu" ref={navRef}>
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} onClick={closeForNav}>{l.label}</a>
+          {NAV.map((l) => (
+            <Link key={l.href} href={l.href} onClick={closeForNav}>{l.label}</Link>
           ))}
-          <a href="#contact" className="nav-cta" onClick={closeForNav}>Start a project</a>
+          <Link href="/contact" className="nav-cta" onClick={closeForNav}>Start a project</Link>
         </nav>
         <button
           className={`burger${open ? ' x' : ''}`}

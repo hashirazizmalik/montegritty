@@ -43,6 +43,10 @@ def main():
             "duration": t["total"],
             "call": f"/voice/{a['id']}_call.mp3",
             "greetingAudio": f"/voice/{a['id']}_greeting.mp3",
+            # Portraits are produced by tools/voice-agents/images.mjs. Referenced
+            # unconditionally — the slider falls back to a monogram if one 404s.
+            "portrait": f"/agents/{a['id']}.webp",
+            "thumb": f"/agents/{a['id']}-thumb.webp",
             "turns": turns,
         })
 

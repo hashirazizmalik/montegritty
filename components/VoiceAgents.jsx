@@ -1,16 +1,11 @@
 import Link from 'next/link';
 import { AGENTS } from '@/lib/agents';
 import { VOICE_AGENTS } from '@/lib/content';
-import AgentGrid from './AgentGrid';
+import AgentShowcase from './AgentShowcase';
 import Reveal from './Reveal';
-
-// Four on the home page, spread across the industries that ask most — the
-// remaining four are one click away rather than dumped here.
-const FEATURED = ['hassan-support', 'bilal-cod', 'ayesha-clinic', 'fatima-collections'];
 
 export default function VoiceAgents() {
   const [head, headEm] = VOICE_AGENTS.heading;
-  const featured = FEATURED.map((id) => AGENTS.find((a) => a.id === id)).filter(Boolean);
 
   return (
     <section id="voice-agents">
@@ -25,12 +20,14 @@ export default function VoiceAgents() {
           <p>{VOICE_AGENTS.lede}</p>
         </Reveal>
 
-        <AgentGrid agents={featured} />
+        <Reveal>
+          <AgentShowcase agents={AGENTS} />
+        </Reveal>
 
-        <Reveal className="vert-also" style={{ marginTop: 56 }}>
-          <span className="vert-also-label">Four more, and the dashboard</span>
+        <Reveal className="vert-also" style={{ marginTop: 48 }}>
+          <span className="vert-also-label">Every call in full</span>
           <div className="vert-also-pills">
-            <Link href="/voice-agents">All eight demos &rarr;</Link>
+            <Link href="/voice-agents">Briefs &amp; transcripts &rarr;</Link>
             <Link href="/voice-agents/dashboard">{VOICE_AGENTS.dashboardTeaser.cta} &rarr;</Link>
           </div>
         </Reveal>

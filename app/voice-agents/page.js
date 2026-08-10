@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AgentGrid from '@/components/AgentGrid';
+import AgentShowcase from '@/components/AgentShowcase';
 import CustomAgentPanel from '@/components/CustomAgentPanel';
 import Reveal from '@/components/Reveal';
 import { AGENTS } from '@/lib/agents';
@@ -44,8 +45,29 @@ export default function VoiceAgentsPage() {
           </div>
         </section>
 
-        <section style={{ paddingTop: 90 }}>
+        <section style={{ paddingTop: 90, paddingBottom: 0 }}>
           <div className="wrap">
+            <Reveal>
+              <AgentShowcase agents={AGENTS} />
+            </Reveal>
+          </div>
+        </section>
+
+        <section>
+          <div className="wrap">
+            <Reveal className="shead">
+              <div>
+                <span className="eyebrow" style={{ marginBottom: 16, display: 'inline-flex' }}>
+                  All eight, side by side
+                </span>
+                <h2>Or scan them <em>at once</em></h2>
+              </div>
+              <p>
+                Every agent, the industry it was built for, and its opening line — press
+                play on any card to hear the voice before opening the full call.
+              </p>
+            </Reveal>
+
             <AgentGrid agents={AGENTS} />
 
             <Reveal className="vert-also" style={{ marginTop: 56 }}>

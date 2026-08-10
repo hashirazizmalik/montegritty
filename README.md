@@ -112,6 +112,37 @@ duration is known, `lib/agents.js` also carries the exact start time of every
 turn. The transcript therefore seeks and highlights in sync with **no alignment
 model**: `CallPlayer` just compares `currentTime` against `turn.at`.
 
+### Agent portraits
+
+Each agent has a portrait, shown large in the demo slider
+(`components/AgentShowcase.jsx`) and as a thumbnail in its nav strip. Source
+PNGs are ~1.9 MB each and are **not** committed; `tools/voice-agents/images.mjs`
+converts them to WebP at two sizes into `public/agents/`, taking all eight from
+about 15 MB down to 570 KB.
+
+```bash
+node tools/voice-agents/images.mjs ~/Downloads
+```
+
+Filenames are matched loosely by substring, so `dr saad.png`, `Dr Saad.PNG` and
+`saad.webp` all resolve to the same agent. Anything missing is reported and
+skipped — the slider falls back to a monogram panel, so a missing portrait never
+renders as a broken image.
+
+### Hovering the portrait plays the voice
+
+The slider previews an agent's opening line when you hover their photo, after a
+260 ms dwell so brushing past does not fire audio. Two separate `<audio>`
+elements are used — the greeting for the hover preview, the full call for the
+player — because they must never overlap.
+
+**Browsers refuse audible playback until the visitor has interacted with the
+document, and a hover does not count.** So a cold visitor's first hover is
+silently rejected; the component catches that and changes the cue to "Tap to
+hear the voice", and one click anywhere unlocks hover previews for the rest of
+the session. This is browser policy, not something to fix. On touch devices,
+where there is no hover at all, the cue says "Tap" from the start.
+
 ### Regenerating
 
 Only needed after editing a script, a voice, or a persona:

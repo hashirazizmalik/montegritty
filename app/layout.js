@@ -1,6 +1,7 @@
 import { Fraunces, Plus_Jakarta_Sans, Space_Mono, Noto_Nastaliq_Urdu } from 'next/font/google';
 import { SITE_URL } from '@/lib/seo';
 import OrganizationSchema from '@/components/OrganizationSchema';
+import AuthProvider from '@/components/AuthProvider';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -83,7 +84,7 @@ export default function RootLayout({ children }) {
     >
       <body>
         <OrganizationSchema />
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

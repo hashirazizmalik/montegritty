@@ -1,18 +1,56 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { signIn, useSession } from 'next-auth/react';
+import { PlayGlyph, PauseGlyph } from './PlayIcon';
+import useAuthConfigured from './useAuthConfigured';
 import { CATEGORIES, TEMPLATES } from '@/lib/templates';
 import { AGENTS } from '@/lib/agents';
 
 const demoHref = (id) => `/voice-agents/${id}`;
 
+// Absolute, because the whole point is pasting it somewhere else.
+const shareUrl = (path) =>
+  typeof window === 'undefined' ? path : `${window.location.origin}${path}`;
+
 export default function TemplateLibrary() {
+  const { data: session } = useSession();
+  const authConfigured = useAuthConfigured();
+  const signedIn = Boolean(session?.user);
   const [cat, setCat] = useState('all');
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(null);
-  const [live, setLive] = useState({});   // templateId → { url }
+  const [sounding, setSounding] = useState(null);
+  const [live, setLive] = useState({});   // templateId → { id, url }
   const [failed, setFailed] = useState({});
+  const [copied, setCopied] = useState(null);
+  // One shared element rather than 52, so switching previews can never leave a
+  // previous voice playing underneath.
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    const stop = () => setSounding(null);
+    el.addEventListener('pause', stop);
+    el.addEventListener('ended', stop);
+    el.addEventListener('error', stop);
+    return () => {
+      el.removeEventListener('pause', stop);
+      el.removeEventListener('ended', stop);
+      el.removeEventListener('error', stop);
+    };
+  }, []);
+
+  const hear = (t) => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (sounding === t.id) { el.pause(); return; }
+    document.querySelectorAll('audio').forEach((o) => { if (o !== el) o.pause(); });
+    el.src = `/templates/${t.id}.mp3`;
+    el.play().then(() => setSounding(t.id)).catch(() => setSounding(null));
+  };
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -37,6 +75,7 @@ export default function TemplateLibrary() {
         body: JSON.stringify({ templateId: t.id }),
       });
       const data = await res.json();
+      if (res.status === 401) throw new Error('Sign in with Google to deploy an agent.');
       if (!res.ok) throw new Error(data.error || 'Could not deploy this template.');
       setLive((l) => ({ ...l, [t.id]: data }));
     } catch (e) {
@@ -99,14 +138,27 @@ export default function TemplateLibrary() {
                 <p className="tpl-blurb">{t.blurb}</p>
 
                 <div className="tpl-meta">
-                  <span className="tpl-voice">{t.voice}</span>
+                  <button
+                    type="button"
+                    className="tpl-hear"
+                    onClick={() => hear(t)}
+                    aria-label={
+                      sounding === t.id
+                        ? `Stop the ${t.name} sample`
+                        : `Hear the ${t.name} voice say its opening line`
+                    }
+                  >
+                    {sounding === t.id ? <PauseGlyph /> : <PlayGlyph />}
+                    {t.voice}
+                  </button>
                   <span className="tpl-langs">{t.languages.join(' · ').toUpperCase()}</span>
                 </div>
+                {sounding === t.id && <p className="tpl-line urdu">{t.greeting}</p>}
 
                 <div className="tpl-foot">
                   {deployed ? (
                     <Link className="tpl-live" href={deployed.url}>Talk to it &rarr;</Link>
-                  ) : (
+                  ) : signedIn ? (
                     <button
                       type="button"
                       className="tpl-deploy"
@@ -115,6 +167,20 @@ export default function TemplateLibrary() {
                     >
                       {busy === t.id ? 'Deploying…' : 'Deploy & talk'}
                     </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="tpl-deploy locked"
+                      onClick={() => authConfigured === true && signIn('google')}
+                      disabled={authConfigured !== true}
+                      title={
+                        authConfigured === false
+                          ? 'Sign-in is not configured on this deployment'
+                          : 'Deploying creates a live, shareable agent — sign in first'
+                      }
+                    >
+                      {authConfigured === false ? 'Deploy unavailable' : 'Sign in to deploy'}
+                    </button>
                   )}
                   {agent && (
                     <Link className="tpl-demo" href={demoHref(agent.id)}>
@@ -122,12 +188,30 @@ export default function TemplateLibrary() {
                     </Link>
                   )}
                 </div>
+                {deployed && (
+                  <div className="tpl-share">
+                    <input readOnly value={shareUrl(deployed.url)} aria-label={`Share link for ${t.name}`} />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(shareUrl(deployed.url));
+                          setCopied(t.id);
+                          setTimeout(() => setCopied((c) => (c === t.id ? null : c)), 2200);
+                        } catch { /* clipboard blocked — the field is selectable */ }
+                      }}
+                    >
+                      {copied === t.id ? 'Copied' : 'Copy link'}
+                    </button>
+                  </div>
+                )}
                 {failed[t.id] && <p className="tpl-err" role="alert">{failed[t.id]}</p>}
               </article>
             );
           })}
         </div>
       )}
+      <audio ref={audioRef} preload="none" />
     </>
   );
 }

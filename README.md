@@ -105,16 +105,45 @@ through the Uplift AI realtime assistant API:
 The API key never reaches the browser. Everything under `lib/uplift.js` is
 server-only and imported solely by route handlers.
 
+### Sign-in
+
+Creating an agent — deploying a template or building one in the studio — requires
+a Google sign-in. **Listening to an agent someone shared with you does not**, and
+must not: a share link that demands a login is a share link nobody opens.
+
+Auth.js v5 (`auth.js`), Google provider, JWT sessions, no database. We store
+nothing about anyone beyond what Google returns, for the length of the session.
+
+Enforced server-side in `POST /api/agents` via `auth()`, so the gate holds even
+if someone calls the API directly. The UI state is decided in the browser by
+`useAuthConfigured()`, which reads `/api/auth/providers` — deliberately *not* a
+server prop, because most pages are statically generated and a build-time check
+would freeze the answer until the next rebuild.
+
+To set it up:
+
+1. Google Cloud Console → APIs & Services → Credentials → **OAuth client ID**,
+   type *Web application*.
+2. Authorised redirect URIs — add both:
+   - `https://<your-domain>/api/auth/callback/google`
+   - `http://localhost:3000/api/auth/callback/google`
+3. Put the client id and secret in the environment (below).
+
 ### Environment variables
 
 ```bash
 UPLIFT_API_KEY=sk_api_...            # required to create agents
 UPLIFT_BUILDER_ASSISTANT_ID=...      # optional but recommended — see below
+AUTH_SECRET=...                      # openssl rand -base64 32
+AUTH_GOOGLE_ID=....apps.googleusercontent.com
+AUTH_GOOGLE_SECRET=...
 ```
 
-Without `UPLIFT_API_KEY` the site still builds and every other page works;
-`/studio` renders an explanatory panel instead of the voice UI, and template
-deploys return 503. Nothing crashes.
+Everything degrades honestly. Without `UPLIFT_API_KEY` the site still builds,
+every other page works, `/studio` explains itself and deploys return 503.
+Without the auth variables, sign-in controls say so instead of throwing people
+at a broken redirect, and `/api/auth/*` returns an empty session rather than a
+500 on every page load.
 
 **Pin the builder.** If `UPLIFT_BUILDER_ASSISTANT_ID` is unset, each cold start
 creates a fresh builder assistant and logs its id. Copy that id into the
@@ -148,6 +177,20 @@ Note the deliberate exception: the **caller** voices in the recorded demos
 (`peer_voice` in `tools/voice-agents/agents.py`) are ordinary-person voices on
 purpose. They play the customer on the other end of the line, not the agent, and
 that variety is what makes the demos sound like real calls.
+
+### Template voice samples
+
+Every template has a preview of its opening line at `public/templates/<id>.mp3`,
+so a visitor can hear the voice before deploying anything. Regenerate after
+changing a greeting or a voice:
+
+```bash
+UPLIFT_API_KEY=sk_api_... node tools/voice-agents/template_samples.mjs
+```
+
+It reads `lib/templates.js` directly, so a sample can never drift from what
+actually gets deployed. Existing files are skipped, so changing one greeting
+costs one API call; pass `--force` to redo all 52 (about 2 MB).
 
 ### Adding a template
 

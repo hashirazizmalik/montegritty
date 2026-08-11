@@ -3,6 +3,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import SignInButton from './SignInButton';
 
 // WebRTC is browser-only — keep livekit out of the server bundle entirely.
 const VoiceRoom = dynamic(() => import('./VoiceRoom'), {
@@ -18,6 +20,8 @@ const VoiceRoom = dynamic(() => import('./VoiceRoom'), {
  * our own API, and the API creates the real agent with the server-held key.
  */
 export default function Studio() {
+  const { data: session, status } = useSession();
+  const signedIn = Boolean(session?.user);
   const [built, setBuilt] = useState(null);
   const [copied, setCopied] = useState(false);
   // The tool handler is built once and must not go stale, so it reads through
@@ -91,12 +95,32 @@ export default function Studio() {
   return (
     <div className="studio">
       <div className="studio-room">
-        <VoiceRoom
-          tools={tools}
-          startLabel="Start talking"
-          label="Tell it what the agent should do. Urdu or English."
-          hint="You'll be asked for microphone access. Nothing is recorded."
-        />
+        {signedIn ? (
+          <VoiceRoom
+            tools={tools}
+            startLabel="Start talking"
+            label="Tell it what the agent should do. Urdu or English."
+            hint="You'll be asked for microphone access. Nothing is recorded."
+          />
+        ) : (
+          <div className="vr-stage">
+            <div className="vr-viz idle" aria-hidden="true">
+              {Array.from({ length: 9 }).map((_, n) => <i key={n} />)}
+            </div>
+            <p className="vr-label">
+              Building an agent creates a live, shareable link, so it needs an account.
+              Signing in takes one tap and we only ever see your name and email.
+            </p>
+            {status === 'loading' ? (
+              <span className="auth-loading" aria-hidden="true" />
+            ) : (
+              <div className="studio-signin">
+                <SignInButton label="Sign in with Google to build" />
+              </div>
+            )}
+            <p className="vr-hint">Listening to an agent someone shared with you needs no account.</p>
+          </div>
+        )}
       </div>
 
       <aside className={`studio-out${built ? ' ready' : ''}`} aria-live="polite">
@@ -128,6 +152,10 @@ export default function Studio() {
               <input readOnly value={shareUrl} aria-label="Shareable link to your agent" />
               <button type="button" onClick={copy}>{copied ? 'Copied' : 'Copy'}</button>
             </div>
+            <p className="studio-expiry">
+              Anyone with this link can talk to your agent — no account needed on their
+              side. It is a temporary demo link and will stop working after a while.
+            </p>
 
             <Link href={built.url} className="btn studio-cta">
               Talk to it <span className="arr" aria-hidden="true">↗</span>

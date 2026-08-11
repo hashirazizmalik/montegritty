@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import { AGENTS } from '@/lib/agents';
+
+// The home page carries a shortlist, not the whole catalogue — all eight are on
+// /voice-agents.
+const HOME_AGENTS = ['hassan-support', 'bilal-cod', 'ayesha-clinic', 'saad-chroniccare', 'sana-school', 'kamran-leads'];
 import { VOICE_AGENTS } from '@/lib/content';
 import AgentShowcase from './AgentShowcase';
 import Reveal from './Reveal';
 
 export default function VoiceAgents() {
   const [head, headEm] = VOICE_AGENTS.heading;
+  const shown = HOME_AGENTS.map((id) => AGENTS.find((a) => a.id === id)).filter(Boolean);
 
   return (
     <section id="voice-agents">
@@ -25,7 +30,7 @@ export default function VoiceAgents() {
         </Reveal>
 
         <Reveal>
-          <AgentShowcase agents={AGENTS} sampleOnly />
+          <AgentShowcase agents={shown} sampleOnly />
         </Reveal>
 
         <Reveal className="vert-also" style={{ marginTop: 48 }}>

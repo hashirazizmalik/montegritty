@@ -1131,3 +1131,77 @@ footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
   .tt-grid { grid-template-columns: repeat(2, 1fr); }
 }
 .path-grid > *, .tt-grid > * { min-width: 0; }
+
+/* Template voice preview — the voice chip is the play control. */
+.tpl-hear {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.63rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink);
+  border: 1px solid var(--line); background: var(--bone); border-radius: 30px; padding: 5px 12px 5px 9px;
+  transition: border-color 0.35s var(--ease), background 0.35s var(--ease), color 0.35s var(--ease);
+}
+.tpl-hear svg { width: 9px; height: 9px; fill: currentColor; flex: none; }
+.tpl-hear:hover { border-color: var(--ink); background: var(--ink); color: var(--bone); }
+.tpl-hear:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.tpl-line {
+  font-size: 1rem; line-height: 2.1; color: var(--ink); border-right: 2px solid var(--clay);
+  padding-right: 12px; margin-top: 2px;
+}
+
+/* ==========================================================================
+   AUTH
+   ========================================================================== */
+.auth-in {
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+  font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 0.9rem; font-weight: 500;
+  color: var(--ink); background: var(--bone); border: 1px solid var(--line); border-radius: 40px;
+  padding: 10px 20px; transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+}
+.auth-in:hover { border-color: var(--ink); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(18, 17, 16, 0.08); }
+.auth-in:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.g-mark { width: 16px; height: 16px; flex: none; }
+
+.auth-who { display: inline-flex; align-items: center; gap: 10px; }
+.auth-who img { border-radius: 50%; display: block; }
+.auth-initial {
+  width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--bone);
+  display: grid; place-items: center; font-family: var(--font-fraunces), Georgia, serif; font-size: 0.8rem;
+}
+.auth-name { font-size: 0.88rem; color: var(--ink-soft); max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.auth-out {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none;
+  border: none; cursor: pointer; padding: 4px 2px; border-bottom: 1px solid var(--line);
+}
+.auth-out:hover { color: var(--clay); border-color: var(--clay); }
+.auth-off { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; letter-spacing: 0.06em; color: var(--muted); }
+.auth-loading { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--clay); animation: spin 0.9s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.nav-auth { display: inline-flex; align-items: center; margin-left: 4px; }
+.studio-signin { margin-top: 4px; }
+.studio-signin .auth-in { background: var(--bone); }
+.studio-expiry { font-size: 0.82rem; color: var(--muted); line-height: 1.65; margin-top: -4px; }
+
+.tpl-deploy.locked { background: none; color: var(--ink); border: 1px solid var(--line); }
+.tpl-deploy.locked:hover:not(:disabled) { background: var(--ink); color: var(--bone); border-color: var(--ink); transform: translateY(-2px); }
+.tpl-deploy.locked:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.tpl-share { display: flex; gap: 8px; margin-top: 4px; }
+.tpl-share input {
+  flex: 1; min-width: 0; padding: 9px 12px; border-radius: 9px; border: 1px solid var(--line);
+  background: var(--bone); font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.65rem; color: var(--ink-soft); outline: none;
+}
+.tpl-share button {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--ink);
+  background: var(--ink); color: var(--bone); border-radius: 9px; padding: 0 14px; cursor: pointer;
+}
+.tpl-share button:hover { background: var(--clay); border-color: var(--clay); }
+
+@media (max-width: 980px) {
+  /* The mobile sheet is a centred column; the auth control joins it as a row. */
+  .nav-auth { margin: 8px 0 0; }
+  .auth-name { display: none; }
+}

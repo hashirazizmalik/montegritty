@@ -1,3 +1,4 @@
+import { auth, isAuthConfigured } from '@/auth';
 import { createAgent, hasKey } from '@/lib/uplift';
 import { getTemplate } from '@/lib/templates';
 import { safeVoice } from '@/lib/voices';
@@ -20,6 +21,20 @@ const bad = (message, status = 400) =>
 export async function POST(request) {
   if (!hasKey()) {
     return bad('Voice agent creation is not configured on this deployment.', 503);
+  }
+
+  // Creating an agent costs real API credits and produces a link that gets
+  // shared, so it is the one thing behind a sign-in. Listening to an agent
+  // someone shared with you stays open.
+  if (!isAuthConfigured()) {
+    return bad('Sign-in is not configured on this deployment, so agents cannot be created.', 503);
+  }
+  const session = await auth();
+  if (!session?.user) {
+    return Response.json(
+      { error: 'Sign in with Google to deploy an agent.', needsAuth: true },
+      { status: 401 }
+    );
   }
 
   let body;

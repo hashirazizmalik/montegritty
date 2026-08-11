@@ -25,10 +25,11 @@ export default function VoiceAgents() {
         </Reveal>
 
         <Reveal className="vert-also" style={{ marginTop: 48 }}>
-          <span className="vert-also-label">Every call in full</span>
+          <span className="vert-also-label">Or skip the demos</span>
           <div className="vert-also-pills">
+            <Link href="/templates">Deploy a ready-made template &rarr;</Link>
+            <Link href="/studio">Build one by talking &rarr;</Link>
             <Link href="/voice-agents">Briefs &amp; transcripts &rarr;</Link>
-            <Link href="/voice-agents/dashboard">{VOICE_AGENTS.dashboardTeaser.cta} &rarr;</Link>
           </div>
         </Reveal>
       </div>

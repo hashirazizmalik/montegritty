@@ -77,6 +77,57 @@ Copy lives in `lib/content.js` on purpose. Changing a service name, a
 testimonial, or the phone/WhatsApp number means editing one object, not
 hunting through JSX.
 
+## Template library & voice studio
+
+Two things beyond the recorded demos, both of which create **real, live agents**
+through the Uplift AI realtime assistant API:
+
+| Route | What it does |
+| ----- | ------------ |
+| `/templates` | 52 ready-made agent briefs across 12 sectors. "Deploy & talk" creates a live agent and links to it. |
+| `/studio` | Describe an agent out loud; a builder agent interviews you and builds it while you talk. |
+| `/agent/[id]` | Public page for any created agent — press start and talk to it. `noindex`. |
+
+### How the studio actually works
+
+1. The browser asks `/api/sessions` for credentials. The route creates (or reuses)
+   a **builder assistant** and returns a LiveKit token via Uplift's
+   `createPublicSession`, which needs no API key — that is what makes a
+   talk-to-it-yourself demo possible on a marketing site.
+2. The builder interviews the visitor in Urdu or English. Its instructions live
+   in `BUILDER_INSTRUCTIONS` in `lib/uplift.js`.
+3. When it has enough, it calls the **`create_agent` client tool**, defined in
+   `components/Studio.jsx`. The handler runs in the browser and POSTs the spec
+   to `/api/agents`.
+4. `/api/agents` creates the agent with the **server-held** `UPLIFT_API_KEY` and
+   returns an id. The page shows the shareable link.
+
+The API key never reaches the browser. Everything under `lib/uplift.js` is
+server-only and imported solely by route handlers.
+
+### Environment variables
+
+```bash
+UPLIFT_API_KEY=sk_api_...            # required to create agents
+UPLIFT_BUILDER_ASSISTANT_ID=...      # optional but recommended — see below
+```
+
+Without `UPLIFT_API_KEY` the site still builds and every other page works;
+`/studio` renders an explanatory panel instead of the voice UI, and template
+deploys return 503. Nothing crashes.
+
+**Pin the builder.** If `UPLIFT_BUILDER_ASSISTANT_ID` is unset, each cold start
+creates a fresh builder assistant and logs its id. Copy that id into the
+environment so you are not accumulating duplicates on every deploy.
+
+### Adding a template
+
+Add an entry to `TEMPLATES` in `lib/templates.js`. Templates are deployable, not
+decorative — `voice`, `greeting` and `instructions` are passed straight to the
+API. Write `instructions` the way you would brief a new hire on day one: what
+they handle, the tone, what they must never do, and when to hand over. The
+`demo` field links a template to one of the eight agents with a recorded call.
+
 ## Voice agent demos
 
 Eight working Urdu voice agents live at `/voice-agents`, each with its own page

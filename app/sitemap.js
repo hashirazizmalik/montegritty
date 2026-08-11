@@ -12,6 +12,8 @@ export default function sitemap() {
 
   return [
     page('', 1),
+    page('/templates', 0.95),
+    page('/studio', 0.9),
     page('/solutions', 0.9),
     page('/voice-agents', 0.9),
     page('/industries', 0.8),

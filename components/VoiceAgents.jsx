@@ -5,7 +5,7 @@ import { AGENTS } from '@/lib/agents';
 // /voice-agents.
 const HOME_AGENTS = ['hassan-support', 'bilal-cod', 'ayesha-clinic', 'saad-chroniccare', 'sana-school', 'kamran-leads'];
 import { VOICE_AGENTS } from '@/lib/content';
-import AgentShowcase from './AgentShowcase';
+import AgentCarousel from './AgentCarousel';
 import Reveal from './Reveal';
 
 export default function VoiceAgents() {
@@ -23,14 +23,14 @@ export default function VoiceAgents() {
             <h2>Hear one <em>before you build</em></h2>
           </div>
           <p>
-            Eight agents we have already built, each handling a real call in Urdu.
-            Press play for the voice, hover the portrait for a taste, or open any of
-            them for the full recording and a transcript you can follow line by line.
+            Agents we have already built, each handling a real call in Urdu. Press play
+            to hear the voice, step through with the arrows, or open any of them for the
+            full recording and a transcript you can follow line by line.
           </p>
         </Reveal>
 
         <Reveal>
-          <AgentShowcase agents={shown} sampleOnly />
+          <AgentCarousel agents={shown} />
         </Reveal>
 
         <Reveal className="vert-also" style={{ marginTop: 48 }}>

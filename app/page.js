@@ -4,6 +4,8 @@ import Marquee from '@/components/Marquee';
 import StartHere from '@/components/StartHere';
 import TemplatesTeaser from '@/components/TemplatesTeaser';
 import VoiceAgents from '@/components/VoiceAgents';
+import DashboardShowcase from '@/components/DashboardShowcase';
+import Confidential from '@/components/Confidential';
 import WhyVoice from '@/components/WhyVoice';
 import CustomAgentPanel from '@/components/CustomAgentPanel';
 import Footer from '@/components/Footer';
@@ -16,6 +18,8 @@ import Footer from '@/components/Footer';
  *   Templates   — proof there is a library, and a route into it
  *   VoiceAgents — proof it sounds real (voice samples only; the full calls
  *                 live on /voice-agents so the home page stays a taste)
+ *   Dashboards  — reporting ships with the agent, not as a later project
+ *   Confidential— the objection that stops regulated buyers going further
  *   WhyVoice    — why this matters in Pakistan specifically
  *
  * Everything long-form lives on its own route: the services accordion on
@@ -35,6 +39,8 @@ export default function Page() {
         <StartHere />
         <TemplatesTeaser />
         <VoiceAgents />
+        <DashboardShowcase />
+        <Confidential />
         <WhyVoice />
         <section style={{ paddingTop: 0 }}>
           <div className="wrap">

@@ -105,45 +105,38 @@ through the Uplift AI realtime assistant API:
 The API key never reaches the browser. Everything under `lib/uplift.js` is
 server-only and imported solely by route handlers.
 
-### Sign-in
+### Free-tier limit
 
-Creating an agent — deploying a template or building one in the studio — requires
-a Google sign-in. **Listening to an agent someone shared with you does not**, and
-must not: a share link that demands a login is a share link nobody opens.
+Creating an agent costs real API credits and leaves something live, so visitors
+get **5 free demo agents** (`FREE_LIMIT` in `lib/quota.js`). Template deploys and
+studio builds draw on the same allowance because both create the same thing.
+After that the deploy button becomes a link to `/contact`.
 
-Auth.js v5 (`auth.js`), Google provider, JWT sessions, no database. We store
-nothing about anyone beyond what Google returns, for the length of the session.
+Tracked in an HMAC-signed httpOnly cookie, not an account — there is no login and
+there should not be one just to hear a demo. **Be clear-eyed about what that
+means:** the signature stops someone editing the counter (a tampered cookie is
+treated as exhausted, not as zero), but clearing cookies or opening a private
+window starts the count again. This is a friction gate to start a sales
+conversation, not a licence check. If it ever needs to be enforceable it needs
+accounts, and that is a bigger change than raising the number.
 
-Enforced server-side in `POST /api/agents` via `auth()`, so the gate holds even
-if someone calls the API directly. The UI state is decided in the browser by
-`useAuthConfigured()`, which reads `/api/auth/providers` — deliberately *not* a
-server prop, because most pages are statically generated and a build-time check
-would freeze the answer until the next rebuild.
-
-To set it up:
-
-1. Google Cloud Console → APIs & Services → Credentials → **OAuth client ID**,
-   type *Web application*.
-2. Authorised redirect URIs — add both:
-   - `https://<your-domain>/api/auth/callback/google`
-   - `http://localhost:3000/api/auth/callback/google`
-3. Put the client id and secret in the environment (below).
+Set `QUOTA_SECRET` in production to make the signature meaningful; it falls back
+to `UPLIFT_API_KEY` and then to a development constant.
 
 ### Environment variables
 
 ```bash
 UPLIFT_API_KEY=sk_api_...            # required to create agents
 UPLIFT_BUILDER_ASSISTANT_ID=...      # optional but recommended — see below
-AUTH_SECRET=...                      # openssl rand -base64 32
-AUTH_GOOGLE_ID=....apps.googleusercontent.com
-AUTH_GOOGLE_SECRET=...
+QUOTA_SECRET=...                     # optional — signs the free-tier counter
 ```
 
 Everything degrades honestly. Without `UPLIFT_API_KEY` the site still builds,
 every other page works, `/studio` explains itself and deploys return 503.
-Without the auth variables, sign-in controls say so instead of throwing people
-at a broken redirect, and `/api/auth/*` returns an empty session rather than a
-500 on every page load.
+
+There is deliberately **no user login**. Creating an agent is rate-limited by
+cookie; talking to an agent someone shared with you is open to anyone with the
+link, which is the entire point of a share link.
 
 **Pin the builder.** If `UPLIFT_BUILDER_ASSISTANT_ID` is unset, each cold start
 creates a fresh builder assistant and logs its id. Copy that id into the

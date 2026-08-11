@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { NAV } from '@/lib/content';
 import Logo from './Logo';
-import SignInButton from './SignInButton';
 
 export default function Header() {
   const [solid, setSolid] = useState(false);
@@ -59,7 +58,6 @@ export default function Header() {
             <Link key={l.href} href={l.href} onClick={closeForNav}>{l.label}</Link>
           ))}
           <Link href="/contact" className="nav-cta" onClick={closeForNav}>Start a project</Link>
-          <span className="nav-auth"><SignInButton compact /></span>
         </nav>
         <button
           className={`burger${open ? ' x' : ''}`}

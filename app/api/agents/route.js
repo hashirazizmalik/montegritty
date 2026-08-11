@@ -1,7 +1,7 @@
-import { auth, isAuthConfigured } from '@/auth';
 import { createAgent, hasKey } from '@/lib/uplift';
 import { getTemplate } from '@/lib/templates';
 import { safeVoice } from '@/lib/voices';
+import { FREE_LIMIT, consume, remaining } from '@/lib/quota';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,17 +23,18 @@ export async function POST(request) {
     return bad('Voice agent creation is not configured on this deployment.', 503);
   }
 
-  // Creating an agent costs real API credits and produces a link that gets
-  // shared, so it is the one thing behind a sign-in. Listening to an agent
-  // someone shared with you stays open.
-  if (!isAuthConfigured()) {
-    return bad('Sign-in is not configured on this deployment, so agents cannot be created.', 503);
-  }
-  const session = await auth();
-  if (!session?.user) {
+  // Free allowance is checked before anything is created, so a refusal never
+  // leaves a half-made agent behind.
+  const left = await remaining();
+  if (left <= 0) {
     return Response.json(
-      { error: 'Sign in with Google to deploy an agent.', needsAuth: true },
-      { status: 401 }
+      {
+        error: `You have used all ${FREE_LIMIT} free demo agents. Talk to us to keep going — production agents are unmetered.`,
+        limitReached: true,
+        limit: FREE_LIMIT,
+        remaining: 0,
+      },
+      { status: 402 }
     );
   }
 
@@ -77,7 +78,14 @@ export async function POST(request) {
 
   try {
     const id = await createAgent(spec);
-    return Response.json({ id, url: `/agent/${id}`, name: spec.name });
+    const stillLeft = await consume();
+    return Response.json({
+      id,
+      url: `/agent/${id}`,
+      name: spec.name,
+      remaining: stillLeft,
+      limit: FREE_LIMIT,
+    });
   } catch (e) {
     console.error('[api/agents] create failed:', e);
     return bad('Could not create the agent right now. Please try again.', 502);

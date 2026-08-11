@@ -2,9 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { signIn, useSession } from 'next-auth/react';
 import { PlayGlyph, PauseGlyph } from './PlayIcon';
-import useAuthConfigured from './useAuthConfigured';
 import { CATEGORIES, TEMPLATES } from '@/lib/templates';
 import { AGENTS } from '@/lib/agents';
 
@@ -15,9 +13,6 @@ const shareUrl = (path) =>
   typeof window === 'undefined' ? path : `${window.location.origin}${path}`;
 
 export default function TemplateLibrary() {
-  const { data: session } = useSession();
-  const authConfigured = useAuthConfigured();
-  const signedIn = Boolean(session?.user);
   const [cat, setCat] = useState('all');
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(null);
@@ -25,6 +20,15 @@ export default function TemplateLibrary() {
   const [live, setLive] = useState({});   // templateId → { id, url }
   const [failed, setFailed] = useState({});
   const [copied, setCopied] = useState(null);
+  const [quota, setQuota] = useState(null);   // { remaining, limit }
+
+  // Shown before anyone clicks, so the allowance is never a surprise.
+  useEffect(() => {
+    fetch('/api/quota')
+      .then((r) => r.json())
+      .then(setQuota)
+      .catch(() => {});
+  }, []);
   // One shared element rather than 52, so switching previews can never leave a
   // previous voice playing underneath.
   const audioRef = useRef(null);
@@ -75,9 +79,14 @@ export default function TemplateLibrary() {
         body: JSON.stringify({ templateId: t.id }),
       });
       const data = await res.json();
-      if (res.status === 401) throw new Error('Sign in with Google to deploy an agent.');
-      if (!res.ok) throw new Error(data.error || 'Could not deploy this template.');
+      if (!res.ok) {
+        if (data.limitReached) setQuota({ remaining: 0, limit: data.limit });
+        throw new Error(data.error || 'Could not deploy this template.');
+      }
       setLive((l) => ({ ...l, [t.id]: data }));
+      if (typeof data.remaining === 'number') {
+        setQuota({ remaining: data.remaining, limit: data.limit });
+      }
     } catch (e) {
       setFailed((f) => ({ ...f, [t.id]: e.message }));
     } finally {
@@ -109,6 +118,13 @@ export default function TemplateLibrary() {
             );
           })}
         </div>
+        {quota && (
+          <span className={`tpl-quota${quota.remaining === 0 ? ' out' : ''}`}>
+            {quota.remaining > 0
+              ? `${quota.remaining} of ${quota.limit} free demos left`
+              : 'Free demos used up'}
+          </span>
+        )}
         <input
           className="tpl-search"
           type="search"
@@ -158,34 +174,21 @@ export default function TemplateLibrary() {
                 <div className="tpl-foot">
                   {deployed ? (
                     <Link className="tpl-live" href={deployed.url}>Talk to it &rarr;</Link>
-                  ) : signedIn ? (
-                    <button
-                      type="button"
-                      className="tpl-deploy"
-                      onClick={() => deploy(t)}
-                      disabled={busy === t.id}
-                    >
-                      {busy === t.id ? 'Deploying…' : 'Deploy & talk'}
-                    </button>
                   ) : (
-                    <button
-                      type="button"
-                      className="tpl-deploy locked"
-                      onClick={() => authConfigured === true && signIn('google')}
-                      disabled={authConfigured !== true}
-                      title={
-                        authConfigured === false
-                          ? 'Sign-in is not configured on this deployment'
-                          : 'Deploying creates a live, shareable agent — sign in first'
-                      }
-                    >
-                      {authConfigured === false ? 'Deploy unavailable' : 'Sign in to deploy'}
-                    </button>
-                  )}
-                  {agent && (
-                    <Link className="tpl-demo" href={demoHref(agent.id)}>
-                      Hear the real call
-                    </Link>
+                    quota && quota.remaining === 0 ? (
+                      <Link className="tpl-deploy locked" href="/contact">
+                        Get more &rarr;
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        className="tpl-deploy"
+                        onClick={() => deploy(t)}
+                        disabled={busy === t.id}
+                      >
+                        {busy === t.id ? 'Deploying…' : 'Deploy & talk'}
+                      </button>
+                    )
                   )}
                 </div>
                 {deployed && (

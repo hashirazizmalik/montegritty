@@ -105,6 +105,26 @@ through the Uplift AI realtime assistant API:
 The API key never reaches the browser. Everything under `lib/uplift.js` is
 server-only and imported solely by route handlers.
 
+### Integration logos
+
+The strip on the home page comes from `lib/integrations.js`, generated from the
+`simple-icons` package (a devDependency, so its 3,453 icons never ship):
+
+```bash
+node tools/logos.mjs
+```
+
+**Slack, Salesforce and Twilio are named in text rather than drawn.** They are
+absent from simple-icons because their owners asked for them to be removed —
+which is a good signal that those marks are actively policed, so we do not
+redraw them.
+
+Watch the copy in `components/Integrations.jsx`. These are routes an agent can
+reach through MCP and n8n, **not sixteen finished, supported connectors**. If
+that section ever starts reading like a certified integration catalogue, it is
+promising something we would then have to honour. Connector documentation is
+still to be written.
+
 ### Free-tier limit
 
 Creating an agent costs real API credits and leaves something live, so visitors

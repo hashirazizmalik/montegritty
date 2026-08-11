@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Marquee from '@/components/Marquee';
 import StartHere from '@/components/StartHere';
+import Integrations from '@/components/Integrations';
 import TemplatesTeaser from '@/components/TemplatesTeaser';
 import VoiceAgents from '@/components/VoiceAgents';
 import DashboardShowcase from '@/components/DashboardShowcase';
@@ -15,6 +16,7 @@ import Footer from '@/components/Footer';
  *
  *   Hero        — you can build a voice agent by talking to one
  *   StartHere   — the three ways in, so nobody has to guess
+ *   Integrations— what it plugs into, before anyone asks
  *   Templates   — proof there is a library, and a route into it
  *   VoiceAgents — proof it sounds real (voice samples only; the full calls
  *                 live on /voice-agents so the home page stays a taste)
@@ -37,6 +39,7 @@ export default function Page() {
         <Hero />
         <Marquee />
         <StartHere />
+        <Integrations />
         <TemplatesTeaser />
         <VoiceAgents />
         <DashboardShowcase />

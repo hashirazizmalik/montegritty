@@ -120,6 +120,35 @@ deploys return 503. Nothing crashes.
 creates a fresh builder assistant and logs its id. Copy that id into the
 environment so you are not accumulating duplicates on every deploy.
 
+### Voice policy — read before assigning any voice
+
+`lib/voices.js` is an **allowlist**, and it is enforced in three places.
+
+Uplift's catalogue is 82 voices and a large part of it is deliberately
+theatrical: comedy aunties, street vendors, horror narrators, lovesick
+teenagers, a washroom singer. Those are for entertainment work. On a business
+call they are actively damaging — a customer who hears a caricature answer the
+phone concludes the company is a joke. Female voices are held to the same bar:
+professional registers only, no teenager, socialite, gossip or "intimate
+late-night" characters.
+
+Enforcement:
+
+1. Every template in `lib/templates.js` uses a voice from the roster.
+2. The studio builder is given only the roster to choose from (`voiceMenuText()`).
+3. `POST /api/agents` runs `safeVoice()`, so an LLM that invents a voice id — or
+   a hand-crafted request — silently falls back to the default rather than
+   putting an unvetted voice in front of a customer.
+
+To add a voice, put it in `VOICES` with a gender and a one-line description of
+the job it suits. If you cannot describe it as "a competent adult doing a job",
+it does not belong there.
+
+Note the deliberate exception: the **caller** voices in the recorded demos
+(`peer_voice` in `tools/voice-agents/agents.py`) are ordinary-person voices on
+purpose. They play the customer on the other end of the line, not the agent, and
+that variety is what makes the demos sound like real calls.
+
 ### Adding a template
 
 Add an entry to `TEMPLATES` in `lib/templates.js`. Templates are deployable, not

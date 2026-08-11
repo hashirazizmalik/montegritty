@@ -23,7 +23,7 @@ const HOVER_INTENT_MS = 260;
  * call for the player — because they are different intents and must never
  * overlap. Whichever starts pauses the other.
  */
-export default function AgentShowcase({ agents }) {
+export default function AgentShowcase({ agents, sampleOnly = false }) {
   const [i, setI] = useState(0);
   const [previewing, setPreviewing] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -200,23 +200,33 @@ export default function AgentShowcase({ agents }) {
               type="button"
               className="pbtn"
               onClick={toggleCall}
-              aria-label={playing ? `Pause ${agent.name}'s call` : `Play ${agent.name}'s full call`}
+              aria-label={
+                playing
+                  ? `Pause ${agent.name}`
+                  : sampleOnly
+                    ? `Hear ${agent.name}'s voice`
+                    : `Play ${agent.name}'s full call`
+              }
             >
               {playing ? <PauseGlyph /> : <PlayGlyph />}
             </button>
             <span className="show-ptext">
-              <strong>Listen to the full call</strong>
-              <span>{agent.turns.length} turns · Urdu · voice &ldquo;{agent.voice}&rdquo;</span>
+              <strong>{sampleOnly ? 'Hear the voice' : 'Listen to the full call'}</strong>
+              <span>
+                {sampleOnly
+                  ? `Urdu · voice “${agent.voice}”`
+                  : `${agent.turns.length} turns · Urdu · voice “${agent.voice}”`}
+              </span>
             </span>
             <span className="show-clock">
-              {clock(now)} / {clock(total || agent.duration)}
+              {clock(now)} / {clock(total || (sampleOnly ? 0 : agent.duration))}
             </span>
           </div>
           <div className="show-rail"><i style={{ width: `${pct}%` }} /></div>
 
           <div className="show-actions">
             <Link className="ag-open" href={`/voice-agents/${agent.id}`}>
-              Full brief &amp; transcript &rarr;
+              {sampleOnly ? 'Hear the full call' : 'Full brief & transcript'} &rarr;
             </Link>
             <span className="show-nav">
               <button type="button" onClick={() => go(i - 1)} aria-label="Previous agent">‹</button>
@@ -248,7 +258,11 @@ export default function AgentShowcase({ agents }) {
       </div>
 
       <audio ref={greetRef} preload="none" src={agent.greetingAudio} />
-      <audio ref={callRef} preload="metadata" src={agent.call} />
+      <audio
+        ref={callRef}
+        preload="metadata"
+        src={sampleOnly ? agent.greetingAudio : agent.call}
+      />
     </div>
   );
 }

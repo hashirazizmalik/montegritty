@@ -1075,3 +1075,59 @@ footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
   .studio-off { padding: 32px 24px; }
 }
 .tpl-grid > *, .studio > *, .tpl-foot > * { min-width: 0; }
+
+/* ==========================================================================
+   HOME: START HERE — the three routes in
+   ========================================================================== */
+.path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.path {
+  border: 1px solid var(--line); border-radius: 20px; padding: 40px 34px 34px; background: var(--bone-2);
+  display: flex; flex-direction: column; gap: 14px; position: relative; overflow: hidden;
+  transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease), border-color 0.6s var(--ease);
+}
+.path:hover { transform: translateY(-8px); border-color: var(--ink); box-shadow: 0 30px 60px -20px rgba(18, 17, 16, 0.2); }
+.path-n { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; color: var(--clay); }
+.path h3 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 2rem; letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+.path p { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.7; flex: 1; }
+.path-tag { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.path-cta {
+  font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 0.95rem; font-weight: 500;
+  border-bottom: 1.5px solid var(--ink); padding-bottom: 3px; align-self: flex-start; margin-top: 6px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.path:hover .path-cta { color: var(--clay); border-color: var(--clay); }
+
+/* ==========================================================================
+   HOME: TEMPLATE TEASER
+   ========================================================================== */
+.tt-cats { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.tt-cat {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft);
+  border: 1px solid var(--line); border-radius: 40px; padding: 9px 15px;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 0.35s var(--ease), color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.tt-cat span { color: var(--muted); font-weight: 400; }
+.tt-cat:hover { background: var(--ink); color: var(--bone); border-color: var(--ink); }
+.tt-cat:hover span { color: rgba(250, 248, 245, 0.6); }
+
+.tt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.tt-card { border: 1px solid var(--line); border-radius: 16px; padding: 24px 26px; background: var(--bone); display: flex; flex-direction: column; gap: 10px; }
+.tt-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.tt-card h3 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; font-size: 1.2rem; letter-spacing: -0.01em; margin: 0; }
+.tt-ur { font-size: 0.95rem; color: var(--muted); line-height: 2; }
+.tt-blurb { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.65; flex: 1; }
+.tt-voice { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.tt-foot { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; margin-top: 40px; }
+
+@media (max-width: 980px) {
+  .path-grid { grid-template-columns: 1fr; gap: 16px; }
+  .path { padding: 30px 24px 26px; }
+  .tt-grid { grid-template-columns: 1fr; }
+  .tt-foot { gap: 18px; }
+}
+@media (min-width: 981px) and (max-width: 1180px) {
+  .tt-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.path-grid > *, .tt-grid > * { min-width: 0; }

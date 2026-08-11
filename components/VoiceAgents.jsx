@@ -15,13 +15,17 @@ export default function VoiceAgents() {
             <span className="eyebrow" style={{ marginBottom: 16, display: 'inline-flex' }}>
               {VOICE_AGENTS.eyebrow}
             </span>
-            <h2>{head}<em>{headEm}</em></h2>
+            <h2>Hear one <em>before you build</em></h2>
           </div>
-          <p>{VOICE_AGENTS.lede}</p>
+          <p>
+            Eight agents we have already built, each handling a real call in Urdu.
+            Press play for the voice, hover the portrait for a taste, or open any of
+            them for the full recording and a transcript you can follow line by line.
+          </p>
         </Reveal>
 
         <Reveal>
-          <AgentShowcase agents={AGENTS} />
+          <AgentShowcase agents={AGENTS} sampleOnly />
         </Reveal>
 
         <Reveal className="vert-also" style={{ marginTop: 48 }}>

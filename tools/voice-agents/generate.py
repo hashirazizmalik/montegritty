@@ -58,8 +58,13 @@ def stitch(parts, silence, out_path):
             if i:
                 f.write(f"file '{silence}'\n")
             f.write(f"file '{p}'\n")
+    # The -af is not cosmetic. Decoding mp3 straight into libmp3lame on ffmpeg 8.x
+    # fails on the final frames with "inadequate AVFrame plane padding", and the
+    # partial file it leaves behind is a silently truncated call. Routing through
+    # aresample reallocates frames with proper padding and the tail survives.
     subprocess.run(
         ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", listing,
+         "-af", "aresample=22050:first_pts=0",
          "-c:a", "libmp3lame", "-b:a", "64k", "-ar", "22050", "-ac", "1", out_path],
         check=True, capture_output=True,
     )

@@ -1,5 +1,6 @@
 import { createAgent, hasKey } from '@/lib/uplift';
 import { getTemplate } from '@/lib/templates';
+import { safeVoice } from '@/lib/voices';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -50,7 +51,10 @@ export async function POST(request) {
     spec = {
       name: typeof name === 'string' && name.trim() ? name.trim() : 'Custom agent',
       description: typeof description === 'string' ? description : '',
-      voice: typeof voice === 'string' && voice.trim() ? voice.trim() : 'helpdesk-agent',
+      // The builder is told which voices exist, but an LLM can still invent one
+      // — and the theatrical half of Uplift's catalogue must never reach a
+      // customer. Anything unrecognised silently becomes the default.
+      voice: safeVoice(typeof voice === 'string' ? voice.trim() : ''),
       instructions: instructions.trim().slice(0, 8000),
       greeting: typeof greeting === 'string' ? greeting.trim().slice(0, 400) : '',
     };

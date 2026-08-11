@@ -301,7 +301,10 @@ AGENTS = [
         "name": "Zainab",
         "role": "Rural Public-Service Outreach",
         "vertical": "Government, Donors & NGOs",
-        "voice": "punjabi-masi",
+        # pashtun-woman is a dignified community register. The previous choice
+        # (punjabi-masi) read as a comic aunty character, which is the wrong
+        # register for a health worker people are meant to trust.
+        "voice": "pashtun-woman",
         "peer_voice": "balochi-seamstress",
         "tagline": "Reaches the 37% of adults that every SMS campaign misses.",
         "problem": (

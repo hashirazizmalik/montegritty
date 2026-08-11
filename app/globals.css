@@ -1416,3 +1416,10 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
   .int-item span { font-size: 0.54rem; letter-spacing: 0.04em; }
 }
 .int-grid > * { min-width: 0; }
+
+/* Shown only when the device reports it cannot cancel echo. */
+.vr-warn {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.68rem;
+  letter-spacing: 0.04em; line-height: 1.7; color: #ffcf8f; max-width: 40ch;
+  border: 1px solid rgba(255, 207, 143, 0.35); border-radius: 10px; padding: 10px 14px;
+}

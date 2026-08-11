@@ -125,6 +125,31 @@ that section ever starts reading like a certified integration catalogue, it is
 promising something we would then have to honour. Connector documentation is
 still to be written.
 
+### If the agent talks over itself
+
+Two symptoms travel together: the agent cuts off mid-sentence, and it appears to
+answer itself. Both are the same fault — the agent's own speech reaching the
+microphone, getting transcribed, and being treated as the visitor talking. The
+barge-in detector hears it too, which is what truncates the sentence.
+
+It is an echo-cancellation problem, not a model problem, so do not go looking in
+the prompt. `components/VoiceRoom.jsx` guards it in three ways:
+
+1. **The permission probe stops its own tracks.** It used to leave the stream
+   open, which kept a second, unmanaged capture of the microphone alive next to
+   the one LiveKit opens. Chrome cancels echo against *its* managed capture, so
+   the stray one defeated it. This was the original bug.
+2. **`ROOM_OPTIONS.audioCaptureDefaults`** asks explicitly for echo
+   cancellation, noise suppression, auto gain and (where supported) voice
+   isolation, rather than relying on browser defaults.
+3. **The applied settings are read back** from the live track once connected. If
+   the device reports echo cancellation off, the UI tells the visitor to use
+   headphones, because at that point nothing in software will save the call.
+
+If it recurs, check in that order: stray `getUserMedia` calls that never stop
+their tracks, then whether the track actually applied `echoCancellation`, then
+whether the person is on laptop speakers at high volume.
+
 ### Free-tier limit
 
 Creating an agent costs real API credits and leaves something live, so visitors

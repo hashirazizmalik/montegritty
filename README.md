@@ -292,6 +292,40 @@ regenerating it revokes every embed already out there, which is the point.
 Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
 `X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
 
+### The model must not leak scripts
+
+A real call produced this from llama-3.3-70b:
+
+```
+اکاؤنٹ_VERIFICATION      Latin caps + underscore
+Верифائی                  Cyrillic
+کس问题 کے                 Chinese
+کوئی vấnہ                 Vietnamese
+कनیکٹ                     Devanagari
+```
+
+The Urdu speech engine cannot pronounce any of it, so the audio stopped
+mid-sentence — the caller said, in the call, that the voice kept cutting out and
+that they could not understand it. It reads like an audio bug and is not one.
+
+Two defences:
+
+- **Model.** Default is `moonshotai/kimi-k2-instruct` on Groq. Override with
+  `UPLIFT_LLM_PROVIDER` / `UPLIFT_LLM_MODEL` — `openai:gpt-4o-mini` is the
+  fallback if Kimi disappoints.
+- **Instructions.** `DELIVERY_RULES` forbids non-Urdu scripts explicitly, by
+  name, and explains the consequence so the model has a reason to comply.
+
+To change the model on every existing assistant:
+
+```bash
+UPLIFT_API_KEY=... node tools/repair-assistants.mjs --apply \
+  --model=groq:moonshotai/kimi-k2-instruct
+```
+
+The script rewrites the rules block rather than appending, so re-running never
+stacks duplicates.
+
 ### Updating an assistant resets what you omit
 
 Uplift's update endpoint is `POST /v1/realtime-assistants/{id}` — **not** PATCH

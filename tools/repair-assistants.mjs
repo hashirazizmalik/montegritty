@@ -22,6 +22,9 @@ import { DELIVERY_RULES } from '../lib/uplift.js';
 
 const KEY = process.env.UPLIFT_API_KEY;
 const APPLY = process.argv.includes('--apply');
+// --model=groq:moonshotai/kimi-k2-instruct   (or openai:gpt-4o-mini)
+const MODEL_ARG = process.argv.find((a) => a.startsWith('--model='))?.split('=')[1];
+const [MODEL_PROVIDER, MODEL_NAME] = MODEL_ARG ? MODEL_ARG.split(/:(.+)/) : [];
 const API = 'https://api.upliftai.org/v1/realtime-assistants';
 
 if (!KEY) {
@@ -55,15 +58,24 @@ for (const a of rows) {
   const needsLang = stt.language !== 'ur';
   const needsRules = !String(agent.instructions || '').includes(MARKER);
   const needsPublic = a.public !== true;
+  const llm = cfg.llm?.default || {};
+  const needsModel = Boolean(MODEL_NAME) && (llm.model !== MODEL_NAME || llm.provider !== MODEL_PROVIDER);
 
-  if (!needsLang && !needsRules && !needsPublic) {
+  const rulesStale = String(agent.instructions || '').includes(MARKER)
+    && !String(agent.instructions || '').includes('Write Urdu in the Urdu script only');
+
+  if (!needsLang && !needsRules && !needsPublic && !needsModel && !rulesStale) {
     skipped += 1;
     console.log(`  ✓ ${name.slice(0, 44).padEnd(44)} already current`);
     continue;
   }
 
-  const why = [needsLang && 'stt language', needsRules && 'delivery rules', needsPublic && 'public flag']
-    .filter(Boolean).join(' + ');
+  const why = [
+    needsLang && 'stt language',
+    (needsRules || rulesStale) && 'delivery rules',
+    needsPublic && 'public flag',
+    needsModel && `model → ${MODEL_NAME}`,
+  ].filter(Boolean).join(' + ');
   console.log(`  → ${name.slice(0, 44).padEnd(44)} ${why}`);
 
   if (!APPLY) continue;
@@ -75,9 +87,16 @@ for (const a of rows) {
       ...cfg,
       agent: {
         ...agent,
-        instructions: needsRules ? `${agent.instructions || ''}${DELIVERY_RULES}` : agent.instructions,
+        instructions: (() => {
+          // Strip any previous copy first, so re-running never stacks the block.
+          const base = String(agent.instructions || '').split(MARKER)[0].trimEnd();
+          return `${base}${DELIVERY_RULES}`;
+        })(),
       },
       stt: { ...cfg.stt, default: { ...stt, language: 'ur' } },
+      ...(MODEL_NAME
+        ? { llm: { ...cfg.llm, default: { ...llm, provider: MODEL_PROVIDER, model: MODEL_NAME } } }
+        : {}),
     },
   };
 

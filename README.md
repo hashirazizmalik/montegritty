@@ -292,6 +292,37 @@ regenerating it revokes every embed already out there, which is the point.
 Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
 `X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
 
+### There is no server-side call data — capture it yourself
+
+Worth knowing before designing any reporting: **Uplift exposes no call log,
+transcript, analytics or webhook API.** You can create, list, get, update and
+delete assistants, and you can mint sessions — that is the entire surface. Once
+a call ends there is nothing to query. `roomName` cannot be looked up later.
+
+So every number the client dashboard will ever show has to be captured live in
+the room and written to our own storage.
+
+`/admin/capture` exists to establish exactly what is capturable. It joins a real
+call, attaches to every `RoomEvent` the SDK emits, timestamps each one relative
+to call start, and produces a downloadable JSON log plus a summary of which
+event types actually fired.
+
+The events that carry real signal:
+
+| Event | What you get |
+| ----- | ------------ |
+| `TranscriptionReceived` | text, speaker, `final`, language, start/end time — the transcript |
+| `ParticipantAttributesChanged` | `lk.agent.state` → listening / thinking / speaking |
+| `ActiveSpeakersChanged` | who was talking, with audio level |
+| `TrackSubscribed` / `Muted` | when audio actually started and stopped |
+| `ConnectionQualityChanged` | call quality |
+| `Disconnected` | end reason |
+
+Duration, turn counts, words per side, languages used, interruptions and
+outcome-by-keyword are all derivable from those. Anything **not** in a capture
+log cannot appear on a dashboard without being invented — which is the trap this
+page is here to avoid.
+
 ### Metrics are seeded, and are not admin-owned
 
 `client.metrics` is sample data and every dashboard says so on screen.

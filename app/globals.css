@@ -1701,3 +1701,46 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
   transition: background 0.3s var(--ease), color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 .cd-side .cd-signout:hover { background: var(--clay); border-color: var(--clay); color: var(--bone); }
+
+/* ==========================================================================
+   CALL CAPTURE HARNESS (admin)
+   ========================================================================== */
+.cap { margin-top: 26px; display: flex; flex-direction: column; gap: 18px; }
+.cap-bar { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.cap-bar label { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: 260px; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cap-bar select, .cap-bar input {
+  font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 0.95rem; color: var(--ink);
+  background: var(--bone); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  text-transform: none; letter-spacing: 0; font-weight: 400;
+}
+.cap-stop, .cap-dl {
+  font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 0.9rem; font-weight: 500;
+  border-radius: 40px; padding: 13px 24px; cursor: pointer; border: 1px solid var(--ink);
+}
+.cap-stop { background: var(--clay); border-color: var(--clay); color: var(--bone); }
+.cap-dl { background: var(--ink); color: var(--bone); }
+.cap-hint { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.7; background: var(--bone-2); border-left: 3px solid var(--clay); border-radius: 0 10px 10px 0; padding: 14px 18px; }
+
+.cap-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.cap-summary div { background: var(--bone); padding: 16px 18px; }
+.cap-summary span { display: block; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cap-summary b { display: block; font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 1.5rem; margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+.cap-cols { display: grid; grid-template-columns: 260px 1fr; gap: 18px; align-items: start; }
+.cap-cols h3 { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+.cap-cols section + h3, .cap-cols h3 + ul + h3 { margin-top: 22px; }
+.cap-types { list-style: none; padding: 0; margin: 0 0 22px; display: flex; flex-direction: column; gap: 6px; }
+.cap-types code { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.7rem; background: var(--bone-2); border: 1px solid var(--line); border-radius: 5px; padding: 3px 7px; color: var(--ink); }
+.cap-log { background: var(--ink); border-radius: 12px; padding: 14px; max-height: 460px; overflow: auto; display: flex; flex-direction: column; gap: 3px; }
+.cap-line { display: grid; grid-template-columns: 52px 150px 1fr; gap: 10px; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.66rem; line-height: 1.6; }
+.cap-line .t { color: rgba(250, 248, 245, 0.4); text-align: right; }
+.cap-line .e { color: #4fc7a2; }
+.cap-line .d { color: rgba(250, 248, 245, 0.72); word-break: break-word; }
+
+@media (max-width: 900px) {
+  .cap-summary { grid-template-columns: 1fr 1fr; }
+  .cap-cols { grid-template-columns: 1fr; }
+  .cap-line { grid-template-columns: 44px 1fr; }
+  .cap-line .d { grid-column: 1 / -1; }
+}
+.cap-summary > *, .cap-cols > * { min-width: 0; }

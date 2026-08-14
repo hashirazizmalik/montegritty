@@ -100,6 +100,7 @@ export default function AdminPanel() {
           <p>{clients.length} account{clients.length === 1 ? '' : 's'}</p>
         </div>
         <div className="adm-top-actions">
+          <a className="adm-signout" href="/admin/capture">Call capture</a>
           <button type="button" className="btn" onClick={startNew}>
             New client <span className="arr" aria-hidden="true">↗</span>
           </button>

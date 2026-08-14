@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRoomContext } from '@upliftai/assistants-react';
-import { RoomEvent } from 'livekit-client';
+import { RoomEvent, Track } from 'livekit-client';
 
 /**
  * Attaches to every RoomEvent and records it.
@@ -19,8 +19,46 @@ const who = (p) => {
   return p.identity?.includes('agent') || p.isAgent ? 'agent' : 'remote';
 };
 
-export default function CallCaptureInner({ push }) {
+export default function CallCaptureInner({ push, onMicLevel }) {
   const room = useRoomContext();
+
+  // Publish the microphone explicitly rather than trusting the `audio` prop,
+  // and record what actually happened. The first capture run showed the agent
+  // asking "are you still there?" with no caller transcript at all, and the log
+  // had no way to tell whether the mic ever reached the room.
+  useEffect(() => {
+    if (!room) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await room.localParticipant.setMicrophoneEnabled(true);
+        if (cancelled) return;
+        const pub = room.localParticipant.getTrackPublication(Track.Source.Microphone);
+        const track = pub?.track?.mediaStreamTrack;
+        push({
+          event: 'mic.published',
+          data: {
+            published: Boolean(pub),
+            muted: pub?.isMuted ?? null,
+            trackSid: pub?.trackSid || null,
+            enabled: track?.enabled ?? null,
+            readyState: track?.readyState || null,
+            label: track?.label || '',
+            settings: track?.getSettings ? {
+              deviceId: String(track.getSettings().deviceId || '').slice(0, 8),
+              echoCancellation: track.getSettings().echoCancellation,
+              noiseSuppression: track.getSettings().noiseSuppression,
+              autoGainControl: track.getSettings().autoGainControl,
+              sampleRate: track.getSettings().sampleRate,
+            } : null,
+          },
+        });
+      } catch (e) {
+        push({ event: 'mic.failed', data: { message: e?.message || String(e) } });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [room, push]);
 
   useEffect(() => {
     if (!room) return;
@@ -50,6 +88,14 @@ export default function CallCaptureInner({ push }) {
         if (state) push({ event: 'agent.state', data: { state } });
       },
 
+      [RoomEvent.LocalTrackPublished]: (pub) => push({
+        event: 'local.track.published',
+        data: { source: String(pub.source), kind: String(pub.kind), sid: pub.trackSid, muted: pub.isMuted },
+      }),
+      [RoomEvent.LocalTrackUnpublished]: (pub) => push({
+        event: 'local.track.unpublished', data: { sid: pub.trackSid },
+      }),
+
       [RoomEvent.TrackSubscribed]: (track, pub, p) => push({
         event: 'track.subscribed',
         data: { role: who(p), kind: track.kind, source: String(pub.source), sid: pub.trackSid },
@@ -71,6 +117,8 @@ export default function CallCaptureInner({ push }) {
           event: 'transcription',
           data: {
             role: who(p),
+            identity: p?.identity ?? null,
+            isLocal: p?.isLocal ?? null,
             text: s.text,
             final: s.final,
             language: s.language || '',
@@ -106,10 +154,16 @@ export default function CallCaptureInner({ push }) {
     // actually talking and when, not just what was transcribed.
     const tick = setInterval(() => {
       const level = room.localParticipant?.audioLevel;
+      const pub = room.localParticipant?.getTrackPublication(Track.Source.Microphone);
+      onMicLevel?.({
+        level: typeof level === 'number' ? level : 0,
+        published: Boolean(pub),
+        muted: pub?.isMuted ?? null,
+      });
       if (typeof level === 'number' && level > 0.02) {
         push({ event: 'caller.level', data: { level: Number(level.toFixed(3)) } });
       }
-    }, 1000);
+    }, 700);
 
     push({ event: 'capture.attached', data: { events: Object.keys(handlers).length } });
 

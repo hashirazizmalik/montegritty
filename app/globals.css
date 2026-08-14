@@ -1744,3 +1744,24 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
   .cap-line .d { grid-column: 1 / -1; }
 }
 .cap-summary > *, .cap-cols > * { min-width: 0; }
+
+/* Live mic meter — the first thing to check when an agent "cannot hear you". */
+.cap-mic { display: flex; align-items: center; gap: 14px; background: var(--bone-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.cap-mic-label { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.cap-mic-bar { flex: 1; height: 10px; background: var(--line); border-radius: 5px; overflow: hidden; }
+.cap-mic-bar i { display: block; height: 100%; background: #1a7f4b; border-radius: 5px; transition: width 0.15s linear; }
+.cap-mic-state { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; color: var(--clay); white-space: nowrap; min-width: 11ch; text-align: right; }
+.cap-mic-state.ok { color: #1a7f4b; }
+
+/* The conversation as it happens. */
+.cap-convo { background: var(--bone-2); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.cap-convo h3 { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+.cap-empty { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+.cap-turns { display: flex; flex-direction: column; gap: 12px; max-height: 340px; overflow: auto; }
+.cap-turn { display: grid; grid-template-columns: 64px 1fr 48px; gap: 14px; align-items: baseline; }
+.cap-turn .r { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.cap-turn.agent .r { color: var(--clay); }
+.cap-turn.caller .r { color: #1a7f4b; }
+.cap-turn .x { font-family: var(--font-urdu), serif; font-size: 1.05rem; line-height: 2.1; direction: rtl; text-align: right; }
+.cap-turn.caller .x { direction: ltr; text-align: left; }
+.cap-turn .s { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.6rem; color: var(--muted); text-align: right; }

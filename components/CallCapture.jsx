@@ -29,6 +29,7 @@ export default function CallCapture({ assistants = [] }) {
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [log, setLog] = useState([]);
+  const [mic, setMic] = useState(null);
   const startedAt = useRef(null);
 
   const push = useCallback((entry) => {
@@ -62,6 +63,8 @@ export default function CallCapture({ assistants = [] }) {
     }
   };
 
+  const onMicLevel = useCallback((m) => setMic(m), []);
+
   const stop = () => {
     push({ event: 'capture.stopped', data: {} });
     setSession(null);
@@ -90,6 +93,12 @@ export default function CallCapture({ assistants = [] }) {
       agentStates: [...new Set(states.map((s) => s.data.state))],
     };
   }, [log]);
+
+  const transcript = useMemo(
+    () => log.filter((l) => l.event === 'transcription' && l.data.final)
+             .map((l) => ({ at: l.at, role: l.data.role, text: l.data.text })),
+    [log]
+  );
 
   const download = () => {
     const blob = new Blob(
@@ -137,17 +146,54 @@ export default function CallCapture({ assistants = [] }) {
 
       {error && <p className="adm-err">{error}</p>}
       {status === 'live' && (
-        <p className="cap-hint">
-          Talk to it. Every event the SDK emits is being recorded — say a few things,
-          interrupt it once, and let it finish a sentence, so the log covers all of it.
-        </p>
+        <>
+          <p className="cap-hint">
+            Talk to it. Watch the meter below — if it moves when you speak, your
+            microphone is reaching the room. If the agent still does not answer, the
+            problem is its speech recognition, not your setup.
+          </p>
+          <div className="cap-mic">
+            <span className="cap-mic-label">Your microphone</span>
+            <span className="cap-mic-bar">
+              <i style={{ width: `${Math.min(100, (mic?.level || 0) * 220)}%` }} />
+            </span>
+            <span className={`cap-mic-state${mic?.published ? ' ok' : ''}`}>
+              {mic == null ? 'starting…'
+                : !mic.published ? 'NOT PUBLISHED'
+                : mic.muted ? 'muted'
+                : `live · ${(mic.level || 0).toFixed(2)}`}
+            </span>
+          </div>
+        </>
       )}
 
       {status === 'live' && session && (
         <Room token={session.token} serverUrl={session.wsUrl} connect audio video={false}
               options={{ audioCaptureDefaults: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }}>
-          <RecorderInner push={push} />
+          <RecorderInner push={push} onMicLevel={onMicLevel} />
         </Room>
+      )}
+
+      {(status === 'live' || transcript.length > 0) && (
+        <section className="cap-convo">
+          <h3>Conversation ({transcript.length})</h3>
+          {transcript.length === 0 ? (
+            <p className="cap-empty">
+              Nothing transcribed yet. Agent lines appear as it speaks; your lines
+              appear only if the platform sends caller transcripts back into the room.
+            </p>
+          ) : (
+            <div className="cap-turns">
+              {transcript.map((t, i) => (
+                <div className={`cap-turn ${t.role}`} key={i}>
+                  <span className="r">{t.role}</span>
+                  <span className="x">{t.text}</span>
+                  <span className="s">{(t.at / 1000).toFixed(1)}s</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       )}
 
       {log.length > 0 && (

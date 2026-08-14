@@ -50,7 +50,7 @@ export default function Header() {
   };
 
   return (
-    <header className={solid ? 'solid' : ''}>
+    <header className={`site-header${solid ? ' solid' : ''}`}>
       <div className="wrap nav">
         <Logo href="/" />
         <nav className={`navlinks${open ? ' open' : ''}`} id="menu" ref={navRef}>

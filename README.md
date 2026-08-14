@@ -238,6 +238,66 @@ API. Write `instructions` the way you would brief a new hire on day one: what
 they handle, the tone, what they must never do, and when to hand over. The
 `demo` field links a template to one of the eight agents with a recorded call.
 
+## Client delivery: agents, dashboards, admin
+
+A client gets two things — a voice agent, and a dashboard reporting on it. The
+dashboard reaches them two ways: a URL they sign in to, and an embed code for
+their own site.
+
+| Route | Who | What |
+| ----- | --- | ---- |
+| `/login` | anyone | One form. The server decides if you are an admin or a client and routes you. |
+| `/admin` | admin | Create clients, assign an Uplift assistant, set their username and password, copy their URL and embed code. |
+| `/c/<slug>` | that client, or an admin | Their dashboard. Requires a session. |
+| `/embed/<slug>?k=…` | anyone with the key | Chrome-less version for an iframe. |
+| `<slug>.montegritty.com` | — | Rewritten to `/c/<slug>` by `middleware.js`. |
+
+### Storage — read this before deploying
+
+`lib/store.js` picks a backend automatically:
+
+| Backend | When | Survives redeploy |
+| ------- | ---- | ----------------- |
+| `supabase` | `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` set | **yes** |
+| `kv` | `KV_REST_API_URL` + `KV_REST_API_TOKEN` set | yes |
+| `file` | local development | on your machine only |
+| `memory` | on Vercel with neither configured | **no** |
+
+**Vercel's filesystem is read-only and per-invocation**, so without Supabase or
+KV anything created in the admin panel is gone on the next deploy. The panel
+says so in a banner rather than letting you find out later. Run `SUPABASE.sql`
+once in the Supabase SQL editor to create the single table it needs.
+
+Seeds in `lib/clients.js` are always merged underneath whatever is stored, so a
+client defined in code exists even when the store is empty.
+
+### Sign-in and passwords
+
+Passwords are scrypt-hashed with a per-password salt — the admin's included —
+and sessions are an HMAC-signed cookie, so there is no session table. A client
+can only ever see their own dashboard; an admin can see any.
+
+`ADMIN_PASSWORD` **must be set in production** or admin sign-in is refused
+outright. Off production it falls back to a known default so the panel works on
+a fresh clone. That asymmetry is deliberate: a default admin password on a live
+deployment is an open door.
+
+### The embed key
+
+`/embed/<slug>` carries an unguessable key rather than requiring a session,
+because an iframe on a client's own website cannot send our cookie. Serving a
+wrong or missing key renders no data at all. The key is generated per client;
+regenerating it revokes every embed already out there, which is the point.
+
+Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
+`X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
+
+### Metrics are seeded
+
+`client.metrics` is sample data, and every dashboard says so on screen. Real
+call telemetry is not wired through yet; when it is, it belongs in its own
+Supabase table rather than inside the client record.
+
 ## Voice agent demos
 
 Eight working Urdu voice agents live at `/voice-agents`, each with its own page

@@ -4,7 +4,7 @@ import Logo from './Logo';
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className="site-footer">
       <div className="wrap">
         <div className="foot-top">
           <div className="foot-brand">

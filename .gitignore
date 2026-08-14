@@ -37,3 +37,6 @@ yarn-error.log*
 # voice-agent toolchain: per-line synthesis cache, rebuilt on demand
 /tools/voice-agents/.cache/
 __pycache__/
+
+# local client store (development backend)
+/.data/

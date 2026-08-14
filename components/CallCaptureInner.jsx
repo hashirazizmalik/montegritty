@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRoomContext } from '@upliftai/assistants-react';
+import { useRoomContext, RoomAudioRenderer } from '@upliftai/assistants-react';
 import { RoomEvent, Track } from 'livekit-client';
 
 /**
@@ -173,5 +173,8 @@ export default function CallCaptureInner({ push, onMicLevel }) {
     };
   }, [room, push]);
 
-  return null;
+  // Subscribing to the agent's track is not the same as playing it. Without
+  // this the call is silent — which is exactly what happened on the first two
+  // captures: every event arrived, and nobody could hear a word.
+  return <RoomAudioRenderer />;
 }

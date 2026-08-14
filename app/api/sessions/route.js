@@ -44,8 +44,23 @@ export async function POST(request) {
     return Response.json({ ...session, assistantId });
   } catch (e) {
     console.error('[api/sessions] session failed:', e);
+
+    // Say what actually went wrong. "The agent may have expired" was a guess,
+    // and when the real cause was a reset `public` flag it sent the debugging
+    // in entirely the wrong direction.
+    const detail = String(e?.message || '');
+    const notPublic = detail.includes('not available publicly') || detail.includes('403');
+    const missing = detail.includes('404');
+
     return Response.json(
-      { error: 'Could not start the conversation. The agent may have expired.' },
+      {
+        error: notPublic
+          ? 'That agent is not marked public, so a browser cannot connect to it. Run tools/repair-assistants.mjs, or recreate it.'
+          : missing
+            ? 'That agent no longer exists on the Uplift account.'
+            : 'Could not start the conversation.',
+        detail: detail.slice(0, 300),
+      },
       { status: 502 }
     );
   }

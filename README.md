@@ -292,6 +292,17 @@ regenerating it revokes every embed already out there, which is the point.
 Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
 `X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
 
+### Updating an assistant resets what you omit
+
+Uplift's update endpoint is `POST /v1/realtime-assistants/{id}` — **not** PATCH
+or PUT, both of which 404. The docs call it a partial update, and `config` does
+merge, but **top-level fields you leave out are reset to their defaults.**
+
+An update carrying only `{ config: … }` therefore turned `public` off on every
+assistant on the account, and every browser session then failed with
+"Assistant is not available publicly". `tools/repair-assistants.mjs` now always
+sends `public: true`. Anything else writing to that endpoint must do the same.
+
 ### There is no server-side call data — capture it yourself
 
 Worth knowing before designing any reporting: **Uplift exposes no call log,

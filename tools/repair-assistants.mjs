@@ -11,7 +11,12 @@
  *      speaking its own `<function=end_call>` syntax out loud and stops it
  *      inventing details the caller never gave.
  *
- * Idempotent: an assistant that already carries the rules is skipped.
+ *   3. public = true. Uplift's update endpoint resets top-level fields that are
+ *      omitted from the body, so an update carrying only `config` silently
+ *      turned `public` off on every assistant — and every public session then
+ *      failed with "Assistant is not available publicly". Always send it.
+ *
+ * Idempotent: an assistant already carrying all three is skipped.
  */
 import { DELIVERY_RULES } from '../lib/uplift.js';
 
@@ -49,19 +54,23 @@ for (const a of rows) {
 
   const needsLang = stt.language !== 'ur';
   const needsRules = !String(agent.instructions || '').includes(MARKER);
+  const needsPublic = a.public !== true;
 
-  if (!needsLang && !needsRules) {
+  if (!needsLang && !needsRules && !needsPublic) {
     skipped += 1;
     console.log(`  ✓ ${name.slice(0, 44).padEnd(44)} already current`);
     continue;
   }
 
-  const why = [needsLang && 'stt language', needsRules && 'delivery rules'].filter(Boolean).join(' + ');
+  const why = [needsLang && 'stt language', needsRules && 'delivery rules', needsPublic && 'public flag']
+    .filter(Boolean).join(' + ');
   console.log(`  → ${name.slice(0, 44).padEnd(44)} ${why}`);
 
   if (!APPLY) continue;
 
   const next = {
+    // Always sent. Omitting it resets it — see the note at the top of this file.
+    public: true,
     config: {
       ...cfg,
       agent: {

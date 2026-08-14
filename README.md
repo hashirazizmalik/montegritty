@@ -292,11 +292,30 @@ regenerating it revokes every embed already out there, which is the point.
 Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
 `X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
 
-### Metrics are seeded
+### Metrics are seeded, and are not admin-owned
 
-`client.metrics` is sample data, and every dashboard says so on screen. Real
-call telemetry is not wired through yet; when it is, it belongs in its own
-Supabase table rather than inside the client record.
+`client.metrics` is sample data and every dashboard says so on screen.
+
+**`saveClient` deliberately strips `metrics` before writing, and `listClients`
+always resolves it from the seed.** Without that, saving a client through the
+admin panel captured whatever shape `metrics` had that day, and the stale copy
+then beat the seed forever — which is exactly what happened once: the dashboard
+silently rendered with no KPIs and no chart after an unrelated edit.
+
+Real telemetry belongs in its own Supabase table, not in the client record.
+
+### Watch out for bare element selectors
+
+`app/globals.css` is shared by the marketing site and the client dashboard, and
+three rules have already leaked across that boundary:
+
+- `header {}` — pinned the dashboard's own `<header>` to the viewport.
+- `footer {}` — same hazard.
+- `section:not(.hero) { padding: 130px 0 }` — put 130px of padding on every
+  dashboard card, because those are `<section>` elements too.
+
+All three are now scoped (`.site-header`, `.site-footer`,
+`main > section:not(.hero)`). Add new global rules by class, not by element.
 
 ## Voice agent demos
 

@@ -1,7 +1,5 @@
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import ClientDashboard from '@/components/ClientDashboard';
-import SignOutButton from '@/components/SignOutButton';
 import { canViewClient } from '@/lib/session';
 import { getClient } from '@/lib/store';
 
@@ -28,13 +26,7 @@ export default async function ClientPage({ params }) {
 
   return (
     <main className="cd-page">
-      <div className="cd-shell">
-        <div className="cd-bar">
-          <Link href="/" className="cd-brand">Montegritty</Link>
-          <SignOutButton />
-        </div>
-        <ClientDashboard client={client} />
-      </div>
+      <ClientDashboard client={client} />
     </main>
   );
 }

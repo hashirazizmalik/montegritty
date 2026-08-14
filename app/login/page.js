@@ -21,10 +21,8 @@ export default async function LoginPage() {
       <div className="login-box">
         <Link href="/" className="login-brand">Montegritty</Link>
         <h1>Sign in</h1>
-        <p className="login-lede">
-          Clients see their own agent and dashboard. Administrators manage every account.
-        </p>
-        <LoginForm hint={devHint} />
+        <p className="login-lede">Who is signing in?</p>
+        <LoginForm hint={devHint} adminEnabled={adminConfigured()} />
         {!adminConfigured() && (
           <p className="login-note">
             Admin sign-in is disabled on this deployment until <code>ADMIN_PASSWORD</code> is set.

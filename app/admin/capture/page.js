@@ -1,12 +1,16 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import CallCapture from '@/components/CallCapture';
-import { requireAdmin } from '@/lib/session';
 import { hasKey } from '@/lib/uplift';
 
-export const metadata = { title: 'Call capture — Montegritty', robots: { index: false, follow: false } };
+export const metadata = { title: 'Call capture', robots: { index: false, follow: false } };
 export const dynamic = 'force-dynamic';
 
+/**
+ * Internal debugging tool. There is no sign-in on this site any more, so it is
+ * gated by an environment variable instead: set CAPTURE_TOOL=on to expose it.
+ * Off by default, and a 404 rather than a 403 so its existence is not
+ * advertised to anyone poking at URLs.
+ */
 async function loadAssistants() {
   if (!hasKey()) return [];
   try {
@@ -24,28 +28,16 @@ async function loadAssistants() {
 }
 
 export default async function CapturePage() {
-  if (!(await requireAdmin())) redirect('/login');
-  const assistants = await loadAssistants();
-
+  if (process.env.CAPTURE_TOOL !== 'on') notFound();
   return (
     <main className="adm-page">
       <div className="adm-top">
         <div>
           <h1>Call capture</h1>
-          <p>Instrumented call · every SDK event recorded</p>
+          <p>Internal · every SDK event recorded</p>
         </div>
-        <Link href="/admin" className="adm-signout">← Clients</Link>
       </div>
-
-      <p className="adm-warn" style={{ background: 'var(--bone-2)', borderColor: 'var(--line)', color: 'var(--ink-soft)' }}>
-        <strong>Why this exists.</strong> Uplift has no server-side call log, transcript
-        or webhook API — nothing can be queried once a call ends. Anything the client
-        dashboard shows has to be captured live in the room and stored by us. Make a real
-        call here, download the JSON, and design the dashboard from the fields that are
-        actually in it.
-      </p>
-
-      <CallCapture assistants={assistants} />
+      <CallCapture assistants={await loadAssistants()} />
     </main>
   );
 }

@@ -77,321 +77,58 @@ Copy lives in `lib/content.js` on purpose. Changing a service name, a
 testimonial, or the phone/WhatsApp number means editing one object, not
 hunting through JSX.
 
-## Template library & voice studio
+## Positioning — read before touching copy
 
-Two things beyond the recorded demos, both of which create **real, live agents**
-through the Uplift AI realtime assistant API:
+Montegritty builds and runs voice agents for Pakistani organisations, **led by
+healthcare**. Three claims separate this from a self-serve builder, and every
+page should reinforce at least one:
 
-| Route | What it does |
-| ----- | ------------ |
-| `/templates` | 52 ready-made agent briefs across 12 sectors. "Deploy & talk" creates a live agent and links to it. |
-| `/studio` | Describe an agent out loud; a builder agent interviews you and builds it while you talk. |
-| `/agent/[id]` | Public page for any created agent — press start and talk to it. `noindex`. |
+1. **Proof.** Our agents have real recorded calls you can listen to. A gallery of
+   templates nobody has deployed is not proof — it is the thing competitors have.
+2. **Engine-agnostic.** Uplift AI is primary for Urdu because it is the best
+   available; ElevenLabs, Vapi and open-source are used where they win, and
+   self-hosted open-source where data cannot leave. A product welded to one
+   vendor inherits that vendor's roadmap and outages. This is the claim a
+   Bayan-style competitor structurally cannot make.
+3. **We run it.** Built, wired into your systems, accountable for one number. A
+   shareable link is not a deployment.
 
-### How the studio actually works
+**Urdu-first and multilingual. Do not claim Pashto as production-ready** — it is
+not, and a buyer disproves it on their first call. `LANGUAGES` in
+`lib/content.js` states each language at its real status; keep it that way.
 
-1. The browser asks `/api/sessions` for credentials. The route creates (or reuses)
-   a **builder assistant** and returns a LiveKit token via Uplift's
-   `createPublicSession`, which needs no API key — that is what makes a
-   talk-to-it-yourself demo possible on a marketing site.
-2. The builder interviews the visitor in Urdu or English. Its instructions live
-   in `BUILDER_INSTRUCTIONS` in `lib/uplift.js`.
-3. When it has enough, it calls the **`create_agent` client tool**, defined in
-   `components/Studio.jsx`. The handler runs in the browser and POSTs the spec
-   to `/api/agents`.
-4. `/api/agents` creates the agent with the **server-held** `UPLIFT_API_KEY` and
-   returns an id. The page shows the shareable link.
+### Sectors
 
-The API key never reaches the browser. Everything under `lib/uplift.js` is
-server-only and imported solely by route handlers.
+Healthcare (lead), education, front desk — `lib/verticals.js`, rendered by
+`components/VerticalPage.jsx`. Banking and telecom are **deliberately absent**:
+both are already crowded with BPO vendors and we add nothing there.
 
-### Integration logos
+### Information architecture
 
-The strip on the home page comes from `lib/integrations.js`, generated from the
-`simple-icons` package (a devDependency, so its 3,453 icons never ship):
+```
+/                 the whole story, in order, each section linking out
+/healthcare       lead vertical
+/education        /front-desk
+/agents           8 recorded calls + 52 listenable templates
+/agents/[slug]    one agent, full call + transcript
+/how-it-works     pilot terms, engines, languages, FAQ
+/contact
+/voice-agents/dashboard   the reporting demo
+```
+
+There is **no sign-in, no client accounts and no live-call surface** on this
+site. Visitors listen; they do not create. `/admin/capture` is an internal
+debugging tool gated behind `CAPTURE_TOOL=on` and 404s otherwise.
+
+### Template avatars
+
+Faces make the catalogue read as a cast rather than a config list — the one
+thing worth borrowing from Bayan. Generated at build time from DiceBear
+(open source), so there is no runtime request and no layout shift:
 
 ```bash
-node tools/logos.mjs
+node tools/avatars.mjs
 ```
-
-**Slack, Salesforce and Twilio are named in text rather than drawn.** They are
-absent from simple-icons because their owners asked for them to be removed —
-which is a good signal that those marks are actively policed, so we do not
-redraw them.
-
-Watch the copy in `components/Integrations.jsx`. These are routes an agent can
-reach through MCP and n8n, **not sixteen finished, supported connectors**. If
-that section ever starts reading like a certified integration catalogue, it is
-promising something we would then have to honour. Connector documentation is
-still to be written.
-
-### If the agent talks over itself
-
-Two symptoms travel together: the agent cuts off mid-sentence, and it appears to
-answer itself. Both are the same fault — the agent's own speech reaching the
-microphone, getting transcribed, and being treated as the visitor talking. The
-barge-in detector hears it too, which is what truncates the sentence.
-
-It is an echo-cancellation problem, not a model problem, so do not go looking in
-the prompt. `components/VoiceRoom.jsx` guards it in three ways:
-
-1. **The permission probe stops its own tracks.** It used to leave the stream
-   open, which kept a second, unmanaged capture of the microphone alive next to
-   the one LiveKit opens. Chrome cancels echo against *its* managed capture, so
-   the stray one defeated it. This was the original bug.
-2. **`ROOM_OPTIONS.audioCaptureDefaults`** asks explicitly for echo
-   cancellation, noise suppression, auto gain and (where supported) voice
-   isolation, rather than relying on browser defaults.
-3. **The applied settings are read back** from the live track once connected. If
-   the device reports echo cancellation off, the UI tells the visitor to use
-   headphones, because at that point nothing in software will save the call.
-
-If it recurs, check in that order: stray `getUserMedia` calls that never stop
-their tracks, then whether the track actually applied `echoCancellation`, then
-whether the person is on laptop speakers at high volume.
-
-### Free-tier limit
-
-Creating an agent costs real API credits and leaves something live, so visitors
-get **5 free demo agents** (`FREE_LIMIT` in `lib/quota.js`). Template deploys and
-studio builds draw on the same allowance because both create the same thing.
-After that the deploy button becomes a link to `/contact`.
-
-Tracked in an HMAC-signed httpOnly cookie, not an account — there is no login and
-there should not be one just to hear a demo. **Be clear-eyed about what that
-means:** the signature stops someone editing the counter (a tampered cookie is
-treated as exhausted, not as zero), but clearing cookies or opening a private
-window starts the count again. This is a friction gate to start a sales
-conversation, not a licence check. If it ever needs to be enforceable it needs
-accounts, and that is a bigger change than raising the number.
-
-Set `QUOTA_SECRET` in production to make the signature meaningful; it falls back
-to `UPLIFT_API_KEY` and then to a development constant.
-
-### Environment variables
-
-```bash
-UPLIFT_API_KEY=sk_api_...            # required to create agents
-UPLIFT_BUILDER_ASSISTANT_ID=...      # optional but recommended — see below
-QUOTA_SECRET=...                     # optional — signs the free-tier counter
-```
-
-Everything degrades honestly. Without `UPLIFT_API_KEY` the site still builds,
-every other page works, `/studio` explains itself and deploys return 503.
-
-There is deliberately **no user login**. Creating an agent is rate-limited by
-cookie; talking to an agent someone shared with you is open to anyone with the
-link, which is the entire point of a share link.
-
-**Pin the builder.** If `UPLIFT_BUILDER_ASSISTANT_ID` is unset, each cold start
-creates a fresh builder assistant and logs its id. Copy that id into the
-environment so you are not accumulating duplicates on every deploy.
-
-### Voice policy — read before assigning any voice
-
-`lib/voices.js` is an **allowlist**, and it is enforced in three places.
-
-Uplift's catalogue is 82 voices and a large part of it is deliberately
-theatrical: comedy aunties, street vendors, horror narrators, lovesick
-teenagers, a washroom singer. Those are for entertainment work. On a business
-call they are actively damaging — a customer who hears a caricature answer the
-phone concludes the company is a joke. Female voices are held to the same bar:
-professional registers only, no teenager, socialite, gossip or "intimate
-late-night" characters.
-
-Enforcement:
-
-1. Every template in `lib/templates.js` uses a voice from the roster.
-2. The studio builder is given only the roster to choose from (`voiceMenuText()`).
-3. `POST /api/agents` runs `safeVoice()`, so an LLM that invents a voice id — or
-   a hand-crafted request — silently falls back to the default rather than
-   putting an unvetted voice in front of a customer.
-
-To add a voice, put it in `VOICES` with a gender and a one-line description of
-the job it suits. If you cannot describe it as "a competent adult doing a job",
-it does not belong there.
-
-Note the deliberate exception: the **caller** voices in the recorded demos
-(`peer_voice` in `tools/voice-agents/agents.py`) are ordinary-person voices on
-purpose. They play the customer on the other end of the line, not the agent, and
-that variety is what makes the demos sound like real calls.
-
-### Template voice samples
-
-Every template has a preview of its opening line at `public/templates/<id>.mp3`,
-so a visitor can hear the voice before deploying anything. Regenerate after
-changing a greeting or a voice:
-
-```bash
-UPLIFT_API_KEY=sk_api_... node tools/voice-agents/template_samples.mjs
-```
-
-It reads `lib/templates.js` directly, so a sample can never drift from what
-actually gets deployed. Existing files are skipped, so changing one greeting
-costs one API call; pass `--force` to redo all 52 (about 2 MB).
-
-### Adding a template
-
-Add an entry to `TEMPLATES` in `lib/templates.js`. Templates are deployable, not
-decorative — `voice`, `greeting` and `instructions` are passed straight to the
-API. Write `instructions` the way you would brief a new hire on day one: what
-they handle, the tone, what they must never do, and when to hand over. The
-`demo` field links a template to one of the eight agents with a recorded call.
-
-## Client delivery: agents, dashboards, admin
-
-A client gets two things — a voice agent, and a dashboard reporting on it. The
-dashboard reaches them two ways: a URL they sign in to, and an embed code for
-their own site.
-
-| Route | Who | What |
-| ----- | --- | ---- |
-| `/login` | anyone | One form. The server decides if you are an admin or a client and routes you. |
-| `/admin` | admin | Create clients, assign an Uplift assistant, set their username and password, copy their URL and embed code. |
-| `/c/<slug>` | that client, or an admin | Their dashboard. Requires a session. |
-| `/embed/<slug>?k=…` | anyone with the key | Chrome-less version for an iframe. |
-| `<slug>.montegritty.com` | — | Rewritten to `/c/<slug>` by `middleware.js`. |
-
-### Storage — read this before deploying
-
-`lib/store.js` picks a backend automatically:
-
-| Backend | When | Survives redeploy |
-| ------- | ---- | ----------------- |
-| `supabase` | `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` set | **yes** |
-| `kv` | `KV_REST_API_URL` + `KV_REST_API_TOKEN` set | yes |
-| `file` | local development | on your machine only |
-| `memory` | on Vercel with neither configured | **no** |
-
-**Vercel's filesystem is read-only and per-invocation**, so without Supabase or
-KV anything created in the admin panel is gone on the next deploy. The panel
-says so in a banner rather than letting you find out later. Run `SUPABASE.sql`
-once in the Supabase SQL editor to create the single table it needs.
-
-Seeds in `lib/clients.js` are always merged underneath whatever is stored, so a
-client defined in code exists even when the store is empty.
-
-### Sign-in and passwords
-
-Passwords are scrypt-hashed with a per-password salt — the admin's included —
-and sessions are an HMAC-signed cookie, so there is no session table. A client
-can only ever see their own dashboard; an admin can see any.
-
-`ADMIN_PASSWORD` **must be set in production** or admin sign-in is refused
-outright. Off production it falls back to a known default so the panel works on
-a fresh clone. That asymmetry is deliberate: a default admin password on a live
-deployment is an open door.
-
-### The embed key
-
-`/embed/<slug>` carries an unguessable key rather than requiring a session,
-because an iframe on a client's own website cannot send our cookie. Serving a
-wrong or missing key renders no data at all. The key is generated per client;
-regenerating it revokes every embed already out there, which is the point.
-
-Only `/embed/*` is framable (`frame-ancestors *`). Everything else sends
-`X-Frame-Options: SAMEORIGIN` — see `next.config.mjs`.
-
-### The model must not leak scripts
-
-A real call produced this from llama-3.3-70b:
-
-```
-اکاؤنٹ_VERIFICATION      Latin caps + underscore
-Верифائی                  Cyrillic
-کس问题 کے                 Chinese
-کوئی vấnہ                 Vietnamese
-कनیکٹ                     Devanagari
-```
-
-The Urdu speech engine cannot pronounce any of it, so the audio stopped
-mid-sentence — the caller said, in the call, that the voice kept cutting out and
-that they could not understand it. It reads like an audio bug and is not one.
-
-Two defences:
-
-- **Model.** Default is `moonshotai/kimi-k2-instruct` on Groq. Override with
-  `UPLIFT_LLM_PROVIDER` / `UPLIFT_LLM_MODEL` — `openai:gpt-4o-mini` is the
-  fallback if Kimi disappoints.
-- **Instructions.** `DELIVERY_RULES` forbids non-Urdu scripts explicitly, by
-  name, and explains the consequence so the model has a reason to comply.
-
-To change the model on every existing assistant:
-
-```bash
-UPLIFT_API_KEY=... node tools/repair-assistants.mjs --apply \
-  --model=groq:moonshotai/kimi-k2-instruct
-```
-
-The script rewrites the rules block rather than appending, so re-running never
-stacks duplicates.
-
-### Updating an assistant resets what you omit
-
-Uplift's update endpoint is `POST /v1/realtime-assistants/{id}` — **not** PATCH
-or PUT, both of which 404. The docs call it a partial update, and `config` does
-merge, but **top-level fields you leave out are reset to their defaults.**
-
-An update carrying only `{ config: … }` therefore turned `public` off on every
-assistant on the account, and every browser session then failed with
-"Assistant is not available publicly". `tools/repair-assistants.mjs` now always
-sends `public: true`. Anything else writing to that endpoint must do the same.
-
-### There is no server-side call data — capture it yourself
-
-Worth knowing before designing any reporting: **Uplift exposes no call log,
-transcript, analytics or webhook API.** You can create, list, get, update and
-delete assistants, and you can mint sessions — that is the entire surface. Once
-a call ends there is nothing to query. `roomName` cannot be looked up later.
-
-So every number the client dashboard will ever show has to be captured live in
-the room and written to our own storage.
-
-`/admin/capture` exists to establish exactly what is capturable. It joins a real
-call, attaches to every `RoomEvent` the SDK emits, timestamps each one relative
-to call start, and produces a downloadable JSON log plus a summary of which
-event types actually fired.
-
-The events that carry real signal:
-
-| Event | What you get |
-| ----- | ------------ |
-| `TranscriptionReceived` | text, speaker, `final`, language, start/end time — the transcript |
-| `ParticipantAttributesChanged` | `lk.agent.state` → listening / thinking / speaking |
-| `ActiveSpeakersChanged` | who was talking, with audio level |
-| `TrackSubscribed` / `Muted` | when audio actually started and stopped |
-| `ConnectionQualityChanged` | call quality |
-| `Disconnected` | end reason |
-
-Duration, turn counts, words per side, languages used, interruptions and
-outcome-by-keyword are all derivable from those. Anything **not** in a capture
-log cannot appear on a dashboard without being invented — which is the trap this
-page is here to avoid.
-
-### Metrics are seeded, and are not admin-owned
-
-`client.metrics` is sample data and every dashboard says so on screen.
-
-**`saveClient` deliberately strips `metrics` before writing, and `listClients`
-always resolves it from the seed.** Without that, saving a client through the
-admin panel captured whatever shape `metrics` had that day, and the stale copy
-then beat the seed forever — which is exactly what happened once: the dashboard
-silently rendered with no KPIs and no chart after an unrelated edit.
-
-Real telemetry belongs in its own Supabase table, not in the client record.
-
-### Watch out for bare element selectors
-
-`app/globals.css` is shared by the marketing site and the client dashboard, and
-three rules have already leaked across that boundary:
-
-- `header {}` — pinned the dashboard's own `<header>` to the viewport.
-- `footer {}` — same hazard.
-- `section:not(.hero) { padding: 130px 0 }` — put 130px of padding on every
-  dashboard card, because those are `<section>` elements too.
-
-All three are now scoped (`.site-header`, `.site-footer`,
-`main > section:not(.hero)`). Add new global rules by class, not by element.
 
 ## Voice agent demos
 

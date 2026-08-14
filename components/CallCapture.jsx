@@ -46,10 +46,10 @@ export default function CallCapture({ assistants = [] }) {
       });
       probe.getTracks().forEach((t) => t.stop());
 
-      const res = await fetch('/api/sessions', {
+      const res = await fetch('/api/capture-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ assistantId, participantName: 'capture' }),
+        body: JSON.stringify({ assistantId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Could not start the session.');

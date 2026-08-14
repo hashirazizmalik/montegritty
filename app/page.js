@@ -1,35 +1,32 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Marquee from '@/components/Marquee';
-import StartHere from '@/components/StartHere';
-import Integrations from '@/components/Integrations';
-import TemplatesTeaser from '@/components/TemplatesTeaser';
+import Edge from '@/components/Edge';
 import VoiceAgents from '@/components/VoiceAgents';
+import Sectors from '@/components/Sectors';
+import Engines from '@/components/Engines';
 import DashboardShowcase from '@/components/DashboardShowcase';
 import Confidential from '@/components/Confidential';
 import WhyVoice from '@/components/WhyVoice';
-import CustomAgentPanel from '@/components/CustomAgentPanel';
+import Closing from '@/components/Closing';
 import Footer from '@/components/Footer';
 
 /**
- * The home page answers one question in order: what can I do here?
+ * The home page answers, in order: what is this, why believe it, who is it for,
+ * what is underneath, what do I get, why now, what do I do.
  *
- *   Hero        — you can build a voice agent by talking to one
- *   StartHere   — the three ways in, so nobody has to guess
- *   Integrations— what it plugs into, before anyone asks
- *   Templates   — proof there is a library, and a route into it
- *   VoiceAgents — proof it sounds real (voice samples only; the full calls
- *                 live on /voice-agents so the home page stays a taste)
- *   Dashboards  — reporting ships with the agent, not as a later project
- *   Confidential— the objection that stops regulated buyers going further
- *   WhyVoice    — why this matters in Pakistan specifically
+ *   Hero        — the problem, in the buyer's words
+ *   Edge        — why this is not another template gallery
+ *   VoiceAgents — the proof, because it is the one thing a competitor cannot fake
+ *   Sectors     — healthcare, education, front desk, each linking to its own page
+ *   Engines     — not locked to one vendor
+ *   Dashboards  — reporting ships with the agent
+ *   Confidential— the objection that stops regulated buyers
+ *   WhyVoice    — the market case, sourced
+ *   Closing     — one action
  *
- * Everything long-form lives on its own route: the services accordion on
- * /solutions, industries on /industries, the method on /process, the form on
- * /contact. Adding a section here is almost always the wrong move.
- *
- * <Testimonials /> is deliberately absent — see the note above TESTIMONIALS in
- * lib/content.js. The quotes are unapproved and describe work we no longer sell.
+ * Long-form lives on its own route. Adding a section here is almost always the
+ * wrong move — give it a page.
  */
 export default function Page() {
   return (
@@ -38,18 +35,14 @@ export default function Page() {
       <main id="top">
         <Hero />
         <Marquee />
-        <StartHere />
-        <Integrations />
-        <TemplatesTeaser />
+        <Edge />
         <VoiceAgents />
+        <Sectors />
+        <Engines />
         <DashboardShowcase />
         <Confidential />
         <WhyVoice />
-        <section style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <CustomAgentPanel />
-          </div>
-        </section>
+        <Closing />
       </main>
       <Footer />
     </>

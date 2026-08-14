@@ -2,33 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { PlayGlyph, PauseGlyph } from './PlayIcon';
 import { CATEGORIES, TEMPLATES } from '@/lib/templates';
 import { AGENTS } from '@/lib/agents';
+import { PlayGlyph, PauseGlyph } from './PlayIcon';
 
-const demoHref = (id) => `/voice-agents/${id}`;
-
-// Absolute, because the whole point is pasting it somewhere else.
-const shareUrl = (path) =>
-  typeof window === 'undefined' ? path : `${window.location.origin}${path}`;
-
+/**
+ * The template catalogue, as a listening experience.
+ *
+ * There is no deploy button any more: this site's job is to prove the voices
+ * are good and start a conversation, not to hand out self-serve agents. Every
+ * card plays its own opening line in its own voice.
+ */
 export default function TemplateLibrary() {
   const [cat, setCat] = useState('all');
   const [q, setQ] = useState('');
-  const [busy, setBusy] = useState(null);
   const [sounding, setSounding] = useState(null);
-  const [live, setLive] = useState({});   // templateId → { id, url }
-  const [failed, setFailed] = useState({});
-  const [copied, setCopied] = useState(null);
-  const [quota, setQuota] = useState(null);   // { remaining, limit }
-
-  // Shown before anyone clicks, so the allowance is never a surprise.
-  useEffect(() => {
-    fetch('/api/quota')
-      .then((r) => r.json())
-      .then(setQuota)
-      .catch(() => {});
-  }, []);
   // One shared element rather than 52, so switching previews can never leave a
   // previous voice playing underneath.
   const audioRef = useRef(null);
@@ -69,31 +57,6 @@ export default function TemplateLibrary() {
     });
   }, [cat, q]);
 
-  const deploy = async (t) => {
-    setBusy(t.id);
-    setFailed((f) => ({ ...f, [t.id]: null }));
-    try {
-      const res = await fetch('/api/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ templateId: t.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.limitReached) setQuota({ remaining: 0, limit: data.limit });
-        throw new Error(data.error || 'Could not deploy this template.');
-      }
-      setLive((l) => ({ ...l, [t.id]: data }));
-      if (typeof data.remaining === 'number') {
-        setQuota({ remaining: data.remaining, limit: data.limit });
-      }
-    } catch (e) {
-      setFailed((f) => ({ ...f, [t.id]: e.message }));
-    } finally {
-      setBusy(null);
-    }
-  };
-
   return (
     <>
       <div className="tpl-bar">
@@ -118,13 +81,6 @@ export default function TemplateLibrary() {
             );
           })}
         </div>
-        {quota && (
-          <span className={`tpl-quota${quota.remaining === 0 ? ' out' : ''}`}>
-            {quota.remaining > 0
-              ? `${quota.remaining} of ${quota.limit} free demos left`
-              : 'Free demos used up'}
-          </span>
-        )}
         <input
           className="tpl-search"
           type="search"
@@ -144,71 +100,38 @@ export default function TemplateLibrary() {
         <div className="tpl-grid">
           {shown.map((t) => {
             const agent = t.demo ? AGENTS.find((a) => a.id === t.demo) : null;
-            const deployed = live[t.id];
+            const playing = sounding === t.id;
             return (
-              <article className="tpl" key={t.id}>
+              <article className={`tpl${playing ? ' playing' : ''}`} key={t.id}>
                 <div className="tpl-head">
-                  <h3>{t.name}</h3>
-                  <p className="tpl-ur urdu">{t.urName}</p>
+                  {/* Faces make a catalogue read as a cast of staff rather than
+                      a config list. Generated at build time — see tools/avatars.mjs. */}
+                  <img className="tpl-face" src={`/avatars/${t.id}.svg`} alt="" width={52} height={52} loading="lazy" />
+                  <div>
+                    <h3>{t.name}</h3>
+                    <p className="tpl-ur urdu">{t.urName}</p>
+                  </div>
                 </div>
+
                 <p className="tpl-blurb">{t.blurb}</p>
 
-                <div className="tpl-meta">
+                <div className="tpl-foot">
                   <button
                     type="button"
-                    className="tpl-hear"
+                    className={`tpl-hear${playing ? ' on' : ''}`}
                     onClick={() => hear(t)}
-                    aria-label={
-                      sounding === t.id
-                        ? `Stop the ${t.name} sample`
-                        : `Hear the ${t.name} voice say its opening line`
-                    }
+                    aria-label={playing ? `Stop ${t.name}` : `Hear the ${t.name} voice`}
                   >
-                    {sounding === t.id ? <PauseGlyph /> : <PlayGlyph />}
-                    {t.voice}
+                    {playing ? <PauseGlyph /> : <PlayGlyph />}
+                    {playing ? 'Playing' : 'Hear the voice'}
                   </button>
-                  <span className="tpl-langs">{t.languages.join(' · ').toUpperCase()}</span>
-                </div>
-                {sounding === t.id && <p className="tpl-line urdu">{t.greeting}</p>}
-
-                <div className="tpl-foot">
-                  {deployed ? (
-                    <Link className="tpl-live" href={deployed.url}>Talk to it &rarr;</Link>
-                  ) : (
-                    quota && quota.remaining === 0 ? (
-                      <Link className="tpl-deploy locked" href="/contact">
-                        Get more &rarr;
-                      </Link>
-                    ) : (
-                      <button
-                        type="button"
-                        className="tpl-deploy"
-                        onClick={() => deploy(t)}
-                        disabled={busy === t.id}
-                      >
-                        {busy === t.id ? 'Deploying…' : 'Deploy & talk'}
-                      </button>
-                    )
+                  <span className="tpl-voice">{t.voice}</span>
+                  {agent && (
+                    <Link className="tpl-demo" href={`/agents/${agent.id}`}>Full call</Link>
                   )}
                 </div>
-                {deployed && (
-                  <div className="tpl-share">
-                    <input readOnly value={shareUrl(deployed.url)} aria-label={`Share link for ${t.name}`} />
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          await navigator.clipboard.writeText(shareUrl(deployed.url));
-                          setCopied(t.id);
-                          setTimeout(() => setCopied((c) => (c === t.id ? null : c)), 2200);
-                        } catch { /* clipboard blocked — the field is selectable */ }
-                      }}
-                    >
-                      {copied === t.id ? 'Copied' : 'Copy link'}
-                    </button>
-                  </div>
-                )}
-                {failed[t.id] && <p className="tpl-err" role="alert">{failed[t.id]}</p>}
+
+                {playing && <p className="tpl-line urdu">{t.greeting}</p>}
               </article>
             );
           })}

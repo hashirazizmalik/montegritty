@@ -1,44 +1,44 @@
 import Link from 'next/link';
 import { AGENTS } from '@/lib/agents';
-
-// The home page carries a shortlist, not the whole catalogue — all eight are on
-// /voice-agents.
-const HOME_AGENTS = ['hassan-support', 'bilal-cod', 'ayesha-clinic', 'saad-chroniccare', 'sana-school', 'kamran-leads'];
-import { VOICE_AGENTS } from '@/lib/content';
+import { TEMPLATES } from '@/lib/templates';
 import AgentCarousel from './AgentCarousel';
 import Reveal from './Reveal';
 
+// A shortlist on the home page; all of them live on /agents.
+const HOME_AGENTS = ['ayesha-clinic', 'saad-chroniccare', 'sana-school', 'bilal-cod', 'hassan-support', 'kamran-leads'];
+
+/**
+ * The proof band. This is the one thing a self-serve competitor cannot fake —
+ * a gallery of templates nobody has deployed is not evidence — so it sits high
+ * and speaks plainly.
+ */
 export default function VoiceAgents() {
-  const [head, headEm] = VOICE_AGENTS.heading;
   const shown = HOME_AGENTS.map((id) => AGENTS.find((a) => a.id === id)).filter(Boolean);
 
   return (
-    <section id="voice-agents">
+    <section id="proof">
       <div className="wrap">
         <Reveal className="shead">
           <div>
             <span className="eyebrow" style={{ marginBottom: 16, display: 'inline-flex' }}>
-              {VOICE_AGENTS.eyebrow}
+              Proof, not a promise
             </span>
-            <h2>Hear one <em>before you build</em></h2>
+            <h2>Listen before you <em>believe us</em></h2>
           </div>
           <p>
-            Agents we have already built, each handling a real call in Urdu. Press play
-            to hear the voice, step through with the arrows, or open any of them for the
-            full recording and a transcript you can follow line by line.
+            Every voice here is a working Montegritty agent handling a real call in Urdu,
+            synthesised end to end. Press play, step through with the arrows, or open any
+            of them for the full recording and a transcript you can follow line by line.
           </p>
         </Reveal>
 
-        <Reveal>
-          <AgentCarousel agents={shown} />
-        </Reveal>
+        <Reveal><AgentCarousel agents={shown} /></Reveal>
 
         <Reveal className="vert-also" style={{ marginTop: 48 }}>
-          <span className="vert-also-label">Or skip the demos</span>
+          <span className="vert-also-label">All {AGENTS.length} agents · {TEMPLATES.length} templates</span>
           <div className="vert-also-pills">
-            <Link href="/templates">Deploy a ready-made template &rarr;</Link>
-            <Link href="/studio">Build one by talking &rarr;</Link>
-            <Link href="/voice-agents">Briefs &amp; transcripts &rarr;</Link>
+            <Link href="/agents">Hear every one &rarr;</Link>
+            <Link href="/voice-agents/dashboard">See the reporting &rarr;</Link>
           </div>
         </Reveal>
       </div>

@@ -2067,3 +2067,171 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
   .aw-summary-stats b { font-size: 1.5rem; }
 }
 .aw > *, .aw-card > *, .aw-field > * { min-width: 0; }
+
+/* ==========================================================================
+   SAMPLE DASHBOARD — one panel, on the home page
+   ==========================================================================
+   Built to read as a product screenshot rather than a marketing graphic, so
+   it borrows the ink card from the process band and keeps everything else
+   quiet: hairline rules, tabular figures, one accent.
+
+   Colour is assigned by the job it does, not by taste:
+     - Calls by hour is one series -> ink bars, no legend, and only the peak
+       takes the accent and a direct label.
+     - Outcomes are states -> the status palette, every row labelled with its
+       name AND value, so colour is never the sole cue.
+     - The agent list is a ranked single series -> same ink as the bars.
+   The four status colours were run through the palette validator against this
+   surface; see the note in lib/sampledash.js before changing any of them. */
+
+.sd {
+  background: var(--ink);
+  color: var(--bone);
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sd-top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+  padding-bottom: 20px; border-bottom: 1px solid rgba(250, 248, 245, 0.13); flex-wrap: wrap;
+}
+.sd-top h3 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; }
+.sd-top p { font-size: 0.82rem; color: rgba(250, 248, 245, 0.5); margin-top: 4px; }
+.sd-top-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.sd-period, .sd-live {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+}
+.sd-period { color: rgba(250, 248, 245, 0.45); }
+.sd-live { display: inline-flex; align-items: center; gap: 7px; color: var(--bone); }
+.sd-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--clay); animation: awBlink 1.6s ease-in-out infinite; }
+
+/* ---------- headline numbers ---------- */
+.sd-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.sd-kpi {
+  background: rgba(250, 248, 245, 0.045); border: 1px solid rgba(250, 248, 245, 0.1);
+  border-radius: 11px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.sd-kpi-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.58rem; letter-spacing: 0.11em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.45); line-height: 1.5;
+}
+.sd-kpi-value { font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 2.1rem; line-height: 1; letter-spacing: -0.02em; }
+.sd-kpi-delta { display: flex; align-items: baseline; gap: 6px; font-size: 0.72rem; color: #5cc08f; flex-wrap: wrap; }
+.sd-kpi-delta i { font-style: normal; font-size: 0.66rem; }
+.sd-kpi-delta em { font-style: normal; color: rgba(250, 248, 245, 0.35); font-size: 0.68rem; }
+
+/* ---------- cards ---------- */
+.sd-card {
+  background: rgba(250, 248, 245, 0.03); border: 1px solid rgba(250, 248, 245, 0.1);
+  border-radius: 13px; padding: 20px 22px 18px; min-width: 0;
+  display: flex; flex-direction: column;
+}
+.sd-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.sd-card h4 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; font-size: 1.1rem; letter-spacing: -0.01em; }
+.sd-sub { display: block; margin-top: 3px; font-size: 0.76rem; color: rgba(250, 248, 245, 0.42); }
+.sd-chart-peak {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250, 248, 245, 0.45);
+  white-space: nowrap;
+}
+.sd-chart-peak b { color: var(--clay); font-weight: 700; }
+
+/* ---------- calls by hour ---------- */
+/* Thin marks, 2px of surface between them, rounded only at the data end so the
+   bar still reads as anchored to its baseline. */
+.sd-bars { display: flex; align-items: flex-end; gap: 2px; height: 152px; }
+.sd-bar {
+  flex: 1; height: 100%; position: relative; display: flex; flex-direction: column;
+  justify-content: flex-end; align-items: stretch; cursor: default; min-width: 0;
+}
+.sd-bar i {
+  display: block; background: rgba(250, 248, 245, 0.3); border-radius: 3px 3px 0 0;
+  transition: background 0.3s var(--ease); min-height: 2px;
+}
+.sd-bar:hover i, .sd-bar:focus-visible i { background: rgba(250, 248, 245, 0.62); }
+.sd-bar.peak i { background: var(--clay); }
+.sd-bar em {
+  font-style: normal; text-align: center; margin-top: 7px; height: 12px;
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.55rem;
+  color: rgba(250, 248, 245, 0.3);
+}
+.sd-bar:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; border-radius: 3px; }
+
+.sd-tip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--bone); color: var(--ink); border-radius: 6px; padding: 6px 10px;
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s var(--ease); z-index: 4;
+}
+.sd-bar:hover .sd-tip, .sd-bar:focus-visible .sd-tip { opacity: 1; }
+/* The end bars would otherwise push their tooltip outside the card. */
+.sd-bar:first-child .sd-tip { left: 0; transform: none; }
+.sd-bar:last-child .sd-tip { left: auto; right: 0; transform: none; }
+
+.sd-note { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(250, 248, 245, 0.1); font-size: 0.78rem; color: rgba(250, 248, 245, 0.48); line-height: 1.55; }
+
+/* ---------- outcomes (status palette) ---------- */
+.sd-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sd-outcomes, .sd-agents { display: flex; flex-direction: column; gap: 15px; flex: 1; justify-content: space-evenly; }
+.sd-outcome-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+.sd-outcome-name { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: rgba(250, 248, 245, 0.82); }
+.sd-outcome-name i { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.sd-outcome-val { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.76rem; display: inline-flex; align-items: baseline; gap: 8px; }
+.sd-outcome-val em { font-style: normal; color: rgba(250, 248, 245, 0.35); font-size: 0.7rem; }
+
+.sd-track { display: block; height: 6px; border-radius: 3px; background: rgba(250, 248, 245, 0.08); overflow: hidden; }
+.sd-track i { display: block; height: 100%; border-radius: 3px; background: rgba(250, 248, 245, 0.42); }
+
+.sd-outcome.good    .sd-outcome-name i, .sd-outcome.good    .sd-track i { background: #1a7f4b; }
+.sd-outcome.warning .sd-outcome-name i, .sd-outcome.warning .sd-track i { background: #b58324; }
+.sd-outcome.info    .sd-outcome-name i, .sd-outcome.info    .sd-track i { background: #4353b8; }
+.sd-outcome.critical .sd-outcome-name i, .sd-outcome.critical .sd-track i { background: #c84b31; }
+.sd-outcome.good .sd-outcome-val { color: #5cc08f; }
+.sd-outcome.warning .sd-outcome-val { color: #d9a94f; }
+.sd-outcome.info .sd-outcome-val { color: #8f9ae0; }
+.sd-outcome.critical .sd-outcome-val { color: #e88b76; }
+
+/* ---------- agents ---------- */
+.sd-agent { display: grid; grid-template-columns: 1fr minmax(80px, 168px) 46px 40px; align-items: center; gap: 14px; }
+.sd-agent-id { min-width: 0; }
+.sd-agent-id b { display: block; font-size: 0.85rem; font-weight: 500; color: rgba(250, 248, 245, 0.85); }
+.sd-agent-id span { font-size: 0.68rem; color: rgba(250, 248, 245, 0.36); }
+.sd-agent-n { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.76rem; text-align: right; }
+.sd-agent-rate { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.7rem; text-align: right; color: rgba(250, 248, 245, 0.4); }
+
+/* ---------- impact ---------- */
+.sd-impact {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  border-top: 1px solid rgba(250, 248, 245, 0.13); padding-top: 20px;
+}
+.sd-impact b { display: block; font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 2rem; line-height: 1; color: var(--clay); }
+.sd-impact .l { display: block; margin-top: 7px; font-size: 0.84rem; color: rgba(250, 248, 245, 0.8); }
+.sd-impact .n { display: block; margin-top: 3px; font-size: 0.72rem; color: rgba(250, 248, 245, 0.4); line-height: 1.45; }
+
+.sd-foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-top: 1px solid rgba(250, 248, 245, 0.13); padding-top: 18px; flex-wrap: wrap; }
+.sd-foot p { font-size: 0.74rem; color: rgba(250, 248, 245, 0.38); line-height: 1.55; max-width: 62ch; }
+.sd-link { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--clay); white-space: nowrap; border-bottom: 1px solid rgba(200, 75, 49, 0.4); padding-bottom: 2px; }
+.sd-link:hover { border-color: var(--clay); }
+
+@media (max-width: 980px) {
+  .sd-kpis { grid-template-columns: repeat(2, 1fr); }
+  .sd-split { grid-template-columns: 1fr; }
+  .sd-impact { grid-template-columns: 1fr; gap: 18px; }
+}
+@media (max-width: 620px) {
+  .sd { padding: 20px 16px; border-radius: 14px; }
+  .sd-card { padding: 16px 14px; }
+  .sd-kpis { grid-template-columns: 1fr; }
+  .sd-bars { height: 120px; }
+  /* Hour ticks stop fitting long before the bars do. */
+  .sd-bar em { display: none; }
+  .sd-agent { grid-template-columns: 1fr 52px 38px; }
+  .sd-agent .sd-track { display: none; }
+}
+.sd > *, .sd-card > *, .sd-agent > * { min-width: 0; }

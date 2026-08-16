@@ -7,23 +7,36 @@ import Confidential from './Confidential';
 import { VERTICAL_PAGES } from '@/lib/verticals';
 import { VERTICALS } from '@/lib/content';
 import { AGENTS } from '@/lib/agents';
+import { SITE_URL } from '@/lib/seo';
 
 const META = {
   healthcare: {
     title: 'Urdu Voice Agents for Clinics & Hospitals — Montegritty',
     description:
-      'Appointment confirmation, pre-arrival intake and chronic care follow-up in spoken Urdu — reaching the patients an SMS reminder never did. Deployable self-hosted.',
+      'Agentic voice AI for healthcare in Pakistan: confirms the appointment in Urdu, reschedules against live availability and updates the patient record mid-call. Deployable self-hosted.',
   },
   education: {
     title: 'Voice Agents for Schools — Admissions, Fees, Attendance | Montegritty',
     description:
-      'Absence follow-up the same evening, fee reminders and admissions enquiries in Urdu, written straight back into your school system.',
+      'Agentic voice AI for schools: absence follow-up the same evening, fee reminders and admissions enquiries in Urdu, written straight back into your school ERP.',
   },
   'front-desk': {
     title: 'Voice Agents for Order Confirmation, Bookings & Support — Montegritty',
     description:
-      'Cash-on-delivery confirmation, lead qualification, bookings and first-line support — the high-volume calls a person is too expensive to keep answering.',
+      'Agentic voice AI that confirms cash-on-delivery orders, qualifies leads and takes bookings in Urdu — then writes every outcome back to your store or CRM.',
   },
+};
+
+const SERVICE_TYPE = {
+  healthcare: 'Healthcare voice agent deployment',
+  education: 'Education voice agent deployment',
+  'front-desk': 'Customer operations voice agent deployment',
+};
+
+const AUDIENCE = {
+  healthcare: 'Clinics, hospitals, laboratories and diagnostic centres',
+  education: 'Schools, colleges and training networks',
+  'front-desk': 'E-commerce, real estate, hospitality and support operations',
 };
 
 export function verticalMetadata(slug) {
@@ -33,6 +46,50 @@ export function verticalMetadata(slug) {
     alternates: { canonical: `/${slug}` },
     openGraph: { ...m, url: `/${slug}`, type: 'website' },
   };
+}
+
+/**
+ * Two blocks per page: the Service the page sells, and the questions it
+ * answers. Both point at the site-wide Organization node rather than repeating
+ * it, so everything resolves to one entity.
+ */
+function VerticalSchema({ slug, vertical }) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Service',
+        '@id': `${SITE_URL}/${slug}#service`,
+        name: META[slug].title.split(' — ')[0],
+        serviceType: SERVICE_TYPE[slug],
+        description: META[slug].description,
+        provider: { '@id': `${SITE_URL}/#organization` },
+        areaServed: { '@type': 'Country', name: 'Pakistan' },
+        availableLanguage: ['ur', 'en'],
+        audience: { '@type': 'BusinessAudience', audienceType: AUDIENCE[slug] },
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Calls we automate first',
+          itemListElement: vertical.calls.map((c) => ({
+            '@type': 'Offer',
+            itemOffered: { '@type': 'Service', name: c.name, description: c.body },
+          })),
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${SITE_URL}/${slug}#faq`,
+        mainEntity: vertical.faq.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+    ],
+  };
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+  );
 }
 
 /**
@@ -51,6 +108,8 @@ export default function VerticalPage({ slug }) {
     <>
       <Header />
       <main>
+        <VerticalSchema slug={slug} vertical={v} />
+
         <section className="page-head">
           <div className="wrap">
             <span className="eyebrow">{v.eyebrow}</span>
@@ -75,8 +134,8 @@ export default function VerticalPage({ slug }) {
                 <h2>Four calls, <em>in order of payback</em></h2>
               </div>
               <p>
-                We do not start with all of them. One call type, one department, six
-                weeks, measured against a number agreed before anything is built.
+                We start with one. One call type, one department, six weeks, measured
+                against a number agreed before anything is built.
               </p>
             </Reveal>
 
@@ -117,6 +176,25 @@ export default function VerticalPage({ slug }) {
           </div>
         </section>
 
+        {/* Question-led headings with the answer in the first sentence — the
+            shape featured snippets and voice assistants read back verbatim.
+            Emitted as FAQPage above. */}
+        <section style={{ paddingTop: 40 }}>
+          <div className="wrap">
+            <Reveal className="voice-faq">
+              <h3>Common questions</h3>
+              <div className="voice-faq-list">
+                {v.faq.map((f) => (
+                  <div className="voice-faq-item" key={f.q}>
+                    <h4>{f.q}</h4>
+                    <p>{f.a}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         <Confidential />
 
         <section style={{ paddingTop: 0 }}>
@@ -137,8 +215,8 @@ export default function VerticalPage({ slug }) {
             <Reveal>
               <h2>{v.close}</h2>
               <p>
-                Tell us which of those calls your team makes most often and we will scope
-                a pilot around it — one number, six weeks, and a plain answer at the end.
+                Tell us which of those calls your team makes most often. We scope a pilot
+                around it — one number, six weeks, a plain answer at the end.
               </p>
               <Link href="/contact" className="btn">
                 Start the conversation <span className="arr" aria-hidden="true">↗</span>

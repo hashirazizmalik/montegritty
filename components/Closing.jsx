@@ -10,9 +10,8 @@ export default function Closing() {
         <Reveal>
           <h2>Which call would you <em>hand over first?</em></h2>
           <p>
-            That is the whole scoping conversation. Tell us the call your team makes most
-            often and we will tell you, within a week, whether an agent is worth building
-            for it — and what it would take.
+            Tell us the call your team makes most often. Within a week we will tell you
+            whether an agent is worth building for it, and what it would take.
           </p>
           <div className="closing-actions">
             <Link href="/contact" className="btn">

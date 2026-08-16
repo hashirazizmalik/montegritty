@@ -19,11 +19,10 @@ export default function Integrations() {
         <Reveal className="int">
           <div className="int-head">
             <span className="eyebrow">Connects to what you run</span>
-            <h2>It plugs into the rest of <em>your stack</em></h2>
+            <h2>This is what makes it <em>an agent</em></h2>
             <p>
-              An agent that cannot reach your systems is a recording. Ours connect through
-              MCP and n8n, so anything with an API or an existing automation node is
-              reachable — these are the ones we are asked for most.
+              An agent that cannot reach your systems is a recording. Ours read and write
+              yours mid-call, through MCP and n8n. These are the ones we are asked for most.
             </p>
           </div>
 
@@ -44,8 +43,7 @@ export default function Integrations() {
           </p>
 
           <p className="int-note">
-            Connector documentation is on the way. Until then, tell us the system and we
-            will confirm the route before you commit to anything.
+            Tell us the system and we confirm the route before you commit to anything.
           </p>
         </Reveal>
       </div>

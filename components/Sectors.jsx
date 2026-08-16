@@ -12,9 +12,8 @@ export default function Sectors() {
             <h2>Three sectors, <em>in depth</em></h2>
           </div>
           <p>
-            Not every industry — three where the calls are highest-volume, the literacy
-            gap is widest, and we have done the work. Banking and telecom are already
-            crowded with contact-centre vendors; we would add nothing there.
+            Three where the calls are highest-volume, the literacy gap is widest, and we
+            have done the work.
           </p>
         </Reveal>
       </div>

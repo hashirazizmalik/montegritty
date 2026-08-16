@@ -26,9 +26,8 @@ export default function VoiceAgents() {
             <h2>Listen before you <em>believe us</em></h2>
           </div>
           <p>
-            Every voice here is a working Montegritty agent handling a real call in Urdu,
-            synthesised end to end. Press play, step through with the arrows, or open any
-            of them for the full recording and a transcript you can follow line by line.
+            Every voice here is a working Montegritty agent handling a real call in Urdu.
+            Press play, or open any of them for the full recording and transcript.
           </p>
         </Reveal>
 

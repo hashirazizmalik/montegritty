@@ -29,10 +29,8 @@ export default function DashboardShowcase() {
             <h2>You also get a <em>dashboard</em></h2>
           </div>
           <p>
-            Every client gets reporting built from their own calls — not a spreadsheet
-            somebody assembles on Monday. Here are three of the shapes we ship, depending
-            on whether you are running a support line, a calling campaign, or a regulated
-            operation that has to prove what was said.
+            Reporting built from your own calls, not a spreadsheet somebody assembles on
+            Monday. Three of the shapes we ship.
           </p>
         </Reveal>
 

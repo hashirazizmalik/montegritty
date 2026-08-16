@@ -13,11 +13,20 @@ import {
   DASH_OUTCOMES,
 } from '@/lib/dashboard';
 
+const DASH_TITLE = 'Urdu Voice Agent Operations Dashboard — Montegritty';
+const DASH_DESC =
+  'A live operations dashboard for Urdu voice agents, in Urdu: call volume by hour, outcome mix, agent leaderboard and a live call feed. Sample data.';
+
 export const metadata = {
-  title: 'Urdu Voice Agent Operations Dashboard — Montegritty',
-  description:
-    'A live operations dashboard for Urdu voice agents, in Urdu: call volume by hour, outcome mix, agent leaderboard and a live call feed. Sample data.',
+  title: DASH_TITLE,
+  description: DASH_DESC,
   alternates: { canonical: '/voice-agents/dashboard' },
+  openGraph: {
+    title: DASH_TITLE,
+    description: DASH_DESC,
+    url: '/voice-agents/dashboard',
+    type: 'website',
+  },
 };
 
 export default function DashboardPage() {
@@ -30,7 +39,7 @@ export default function DashboardPage() {
       <main>
         <section className="ag-hero" style={{ paddingBottom: 0 }}>
           <div className="wrap">
-            <Link href="/voice-agents" className="ag-back">&larr; All eight demos</Link>
+            <Link href="/agents" className="ag-back">&larr; All eight demos</Link>
             <h1>The same system that answers<br />also <em>reports</em>.</h1>
             <div className="ag-hero-sub">
               <p>
@@ -53,7 +62,10 @@ export default function DashboardPage() {
 
         <section className="dash" style={{ marginTop: 90 }}>
           <div className="wrap">
-            <div className="dash-shell">
+            {/* The whole shell is an Urdu RTL interface. Declaring it here
+                covers every label inside it — the CSS was setting direction
+                without ever saying which language this is. */}
+            <div className="dash-shell" lang="ur" dir="rtl">
               <Reveal className="dash-top">
                 <div className="dash-title">
                   <h2 className="urdu">{DASH_META.title}</h2>

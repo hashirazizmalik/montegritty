@@ -3,32 +3,58 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Process from '@/components/Process';
 import Engines from '@/components/Engines';
+import Integrations from '@/components/Integrations';
 import Languages from '@/components/Languages';
 import Reveal from '@/components/Reveal';
-import { PROCESS_PAGE } from '@/lib/content';
+import { PROCESS, PROCESS_PAGE } from '@/lib/content';
+import { SITE_URL } from '@/lib/seo';
 
 export const metadata = {
-  title: 'How It Works — Voice Agent Pilots & Engines | Montegritty',
+  title: 'How It Works — Agentic Voice Agents & Integrations | Montegritty',
   description:
-    'One call type, one number to move, six weeks. Plus the engine layer: Uplift AI for Urdu, ElevenLabs for English, Vapi for telephony, and open-source self-hosted where data cannot leave.',
+    'How a Montegritty voice agent pilot runs: one call type, one number to move, six weeks. Plus what the agent connects to — CRM, ERP, booking systems and order feeds, through MCP and n8n.',
   alternates: { canonical: '/how-it-works' },
   openGraph: {
     title: 'How It Works — Montegritty',
-    description: 'One call type, one number to move, six weeks. And the engines underneath.',
+    description: 'One call type, one number to move, six weeks. And what the agent plugs into.',
     url: '/how-it-works',
     type: 'website',
   },
 };
 
-function FaqSchema() {
+/**
+ * The four-phase pilot was already a sequence in `PROCESS`; declaring it as a
+ * HowTo just says so. The FAQ is the site's strongest AEO surface — direct
+ * answers, first sentence.
+ */
+function PageSchema() {
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: PROCESS_PAGE.faq.map((f) => ({
-      '@type': 'Question',
-      name: f.q,
-      acceptedAnswer: { '@type': 'Answer', text: f.a },
-    })),
+    '@graph': [
+      {
+        '@type': 'FAQPage',
+        '@id': `${SITE_URL}/how-it-works#faq`,
+        mainEntity: PROCESS_PAGE.faq.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      },
+      {
+        '@type': 'HowTo',
+        '@id': `${SITE_URL}/how-it-works#howto`,
+        name: 'How a Montegritty voice agent pilot runs',
+        description:
+          'Every Montegritty engagement starts as a narrow pilot on a single call type, measured against a number agreed before anything is built.',
+        totalTime: 'P6W',
+        step: PROCESS.map((s, i) => ({
+          '@type': 'HowToStep',
+          position: i + 1,
+          name: s.title,
+          text: s.body,
+        })),
+      },
+    ],
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
@@ -40,7 +66,7 @@ export default function HowItWorksPage() {
     <>
       <Header />
       <main>
-        <FaqSchema />
+        <PageSchema />
 
         <section className="page-head">
           <div className="wrap">
@@ -67,6 +93,7 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
+        <Integrations />
         <Engines />
         <Languages />
 
@@ -91,8 +118,8 @@ export default function HowItWorksPage() {
             <Reveal>
               <h2>Which call would you <em>hand over first?</em></h2>
               <p>
-                That question is the whole scoping conversation. Answer it and we can tell
-                you within a week whether an agent is worth building for it.
+                Answer that and we can tell you within a week whether an agent is worth
+                building for it.
               </p>
               <Link href="/contact" className="btn">
                 Start the conversation <span className="arr" aria-hidden="true">↗</span>

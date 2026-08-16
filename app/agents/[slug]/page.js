@@ -5,9 +5,98 @@ import Footer from '@/components/Footer';
 import CallPlayer from '@/components/CallPlayer';
 import Reveal from '@/components/Reveal';
 import { AGENTS, getAgent } from '@/lib/agents';
+import { SITE_URL } from '@/lib/seo';
 
 export function generateStaticParams() {
   return AGENTS.map((a) => ({ slug: a.id }));
+}
+
+/** Seconds → ISO 8601 duration, which is what schema.org expects. */
+function isoDuration(seconds) {
+  const total = Math.round(seconds);
+  return `PT${Math.floor(total / 60)}M${total % 60}S`;
+}
+
+/** "PKR 450,000" → { currency, amount } for priceSpecification. */
+function parsePrice(value) {
+  const amount = value.replace(/[^\d.]/g, '');
+  return amount ? { priceCurrency: 'PKR', price: amount } : null;
+}
+
+/**
+ * The recorded call is the most valuable and least copyable thing on this site,
+ * and it shipped as a bare <audio> tag that no machine could identify. This
+ * declares it: what language it is in, how long it runs, and that a full
+ * transcript accompanies it.
+ */
+function AgentSchema({ agent }) {
+  const url = `${SITE_URL}/agents/${agent.id}`;
+  const transcript = agent.turns
+    .map((t) => `${t.who === 'agent' ? agent.name : 'Caller'}: ${t.ur} — ${t.en}`)
+    .join('\n');
+
+  const setup = parsePrice(agent.pricing.setup);
+  const monthly = parsePrice(agent.pricing.monthly);
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'AudioObject',
+        '@id': `${url}#call`,
+        name: `${agent.name} — a full ${agent.vertical.toLowerCase()} call in Urdu`,
+        description: agent.tagline,
+        contentUrl: `${SITE_URL}${agent.call}`,
+        encodingFormat: 'audio/mpeg',
+        inLanguage: 'ur-PK',
+        duration: isoDuration(agent.duration),
+        transcript,
+        thumbnailUrl: `${SITE_URL}${agent.portrait}`,
+        isPartOf: { '@id': url },
+        publisher: { '@id': `${SITE_URL}/#organization` },
+      },
+      {
+        '@type': 'Service',
+        '@id': `${url}#service`,
+        name: `${agent.name} — ${agent.role}`,
+        serviceType: 'Agentic voice agent deployment',
+        description: agent.solution,
+        provider: { '@id': `${SITE_URL}/#organization` },
+        areaServed: { '@type': 'Country', name: 'Pakistan' },
+        availableLanguage: ['ur', 'en'],
+        audience: { '@type': 'BusinessAudience', audienceType: agent.vertical },
+        ...(setup && monthly
+          ? {
+              offers: {
+                '@type': 'Offer',
+                priceCurrency: 'PKR',
+                priceSpecification: [
+                  { '@type': 'UnitPriceSpecification', name: 'One-time setup', ...setup },
+                  {
+                    '@type': 'UnitPriceSpecification',
+                    name: 'Monthly licence',
+                    ...monthly,
+                    referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: 'MON' },
+                  },
+                ],
+              },
+            }
+          : {}),
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${url}#breadcrumb`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Agents', item: `${SITE_URL}/agents` },
+          { '@type': 'ListItem', position: 2, name: agent.name, item: url },
+        ],
+      },
+    ],
+  };
+
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+  );
 }
 
 export async function generateMetadata({ params }) {
@@ -16,7 +105,7 @@ export async function generateMetadata({ params }) {
   if (!agent) return {};
   return {
     title: `${agent.name} — ${agent.role} | Montegritty Voice Agents`,
-    description: `${agent.tagline} A working Urdu voice agent for ${agent.vertical.toLowerCase()}, with a full recorded call and bilingual transcript.`,
+    description: `${agent.tagline} An agentic Urdu voice agent for ${agent.vertical.toLowerCase()} — hear the full recorded call and read the bilingual transcript.`,
     alternates: { canonical: `/agents/${agent.id}` },
     openGraph: {
       title: `${agent.name} — ${agent.role}`,
@@ -41,6 +130,8 @@ export default async function AgentPage({ params }) {
     <>
       <Header />
       <main>
+        <AgentSchema agent={agent} />
+
         <section className="ag-hero">
           <div className="wrap">
             <Link href="/agents" className="ag-back">&larr; All agents</Link>
@@ -97,8 +188,8 @@ export default async function AgentPage({ params }) {
               </div>
               <p>
                 Modelled from published industry benchmarks, not measured from a live
-                deployment. We agree these as the pilot&rsquo;s success criteria and then
-                prove them on your data.
+                deployment. We agree them as the pilot&rsquo;s success criteria, then prove
+                them on your data.
               </p>
             </Reveal>
             <div className="ag-kpis">

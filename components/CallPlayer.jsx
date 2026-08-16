@@ -105,7 +105,10 @@ export default function CallPlayer({ agent }) {
                   <span>{clock(t.at)}</span>
                 </span>
                 <span>
-                  <span className="turn-ur urdu">{t.ur}</span>
+                  {/* .urdu sets direction in CSS only; without lang/dir the
+                      script is announced by an English voice and no machine can
+                      tell this is Urdu. */}
+                  <span className="turn-ur urdu" lang="ur" dir="rtl">{t.ur}</span>
                   <span className="turn-en">{t.en}</span>
                 </span>
               </button>

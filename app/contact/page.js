@@ -6,7 +6,7 @@ import { CONTACT_PAGE } from '@/lib/content';
 export const metadata = {
   title: 'Start a Voice Agent Project — Montegritty',
   description:
-    'Tell us the call your team makes most often. We scope a voice agent pilot around it: one call type, one number to move, roughly six weeks.',
+    'Tell us the call your team makes most often. We scope an agentic Urdu voice agent pilot around it: one call type, one number to move, roughly six weeks.',
   alternates: { canonical: '/contact' },
   openGraph: {
     title: 'Start a Voice Agent Project — Montegritty',

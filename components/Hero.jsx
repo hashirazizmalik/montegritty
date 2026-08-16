@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { HERO } from '@/lib/content';
@@ -7,11 +8,40 @@ import { HERO } from '@/lib/content';
 // WebGL is browser-only; keep it out of the server render entirely.
 const HeroCanvas = dynamic(() => import('./HeroCanvas'), { ssr: false });
 
+/**
+ * three.js is the largest chunk in the build by a wide margin, and it exists
+ * for a decorative point field. Our buyers are reached by phone precisely
+ * because they are on mid-range Android on mobile data — the worst possible
+ * audience to hand half a megabyte of WebGL. Gate the import on viewport and
+ * motion preference, so phones never download it at all. The CSS grid behind
+ * it is a complete fallback.
+ */
+function useDecorativeCanvas() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    const wide = window.matchMedia('(min-width: 900px)');
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setShow(wide.matches && !still.matches);
+    update();
+    wide.addEventListener('change', update);
+    still.addEventListener('change', update);
+    return () => {
+      wide.removeEventListener('change', update);
+      still.removeEventListener('change', update);
+    };
+  }, []);
+
+  return show;
+}
+
 export default function Hero() {
+  const showCanvas = useDecorativeCanvas();
+
   return (
     <section className="hero">
       <div className="hero-grid" />
-      <HeroCanvas />
+      {showCanvas && <HeroCanvas />}
       <div className="wrap">
         <span className="eyebrow hero-tag">{HERO.eyebrow}</span>
         <h1>

@@ -11,7 +11,7 @@ import { AGENTS_PAGE } from '@/lib/content';
 export const metadata = {
   title: 'Hear the Agents — Real Urdu Voice Calls | Montegritty',
   description:
-    `Eight Urdu voice agents with full recorded calls and bilingual transcripts, plus ${TEMPLATES.length} ready-made templates you can listen to. Built by Montegritty.`,
+    `Eight agentic Urdu voice agents with full recorded calls and bilingual transcripts, plus ${TEMPLATES.length} ready-made templates you can listen to. Built by Montegritty.`,
   alternates: { canonical: '/agents' },
   openGraph: {
     title: 'Hear the Agents — Real Urdu Voice Calls | Montegritty',
@@ -54,8 +54,7 @@ export default function AgentsPage() {
               </div>
               <p>
                 Each one is a complete brief — the voice, the opening line in Urdu, and
-                the rules about what it must never say. Press play to hear how any of
-                them opens a call.
+                the rules about what it must never say. Press play to hear one open.
               </p>
             </Reveal>
             <TemplateLibrary />
@@ -75,8 +74,8 @@ export default function AgentsPage() {
             <Reveal>
               <h2>Yours is <em>not on this page</em></h2>
               <p>
-                These exist to show the standard. What we build for you is shaped around
-                your call, your systems and your callers — tell us which call to start with.
+                These show the standard. What we build for you is shaped around your call,
+                your systems and your callers.
               </p>
               <Link href="/contact" className="btn">
                 Start the conversation <span className="arr" aria-hidden="true">↗</span>

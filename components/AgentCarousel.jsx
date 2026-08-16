@@ -102,7 +102,9 @@ export default function AgentCarousel({ agents }) {
             {playing ? `${agent.name} speaking` : 'Hear the voice'}
           </button>
 
-          <Link className="car-more" href={`/voice-agents/${agent.id}`}>
+          {/* /voice-agents/[slug] was renamed to /agents/[slug]; this link was
+              left behind and 404'd on both pages the carousel appears on. */}
+          <Link className="car-more" href={`/agents/${agent.id}`}>
             Hear the full call &rarr;
           </Link>
         </div>

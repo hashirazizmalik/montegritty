@@ -36,37 +36,40 @@ const nastaliq = Noto_Nastaliq_Urdu({
   variable: '--font-urdu',
 });
 
+const TITLE = "Montegritty — Pakistan's First Urdu-First Agentic Voice Agents";
+const DESCRIPTION =
+  'Montegritty builds agentic voice AI agents that speak Urdu and take action: they book the appointment, confirm the order and write the outcome into your CRM, ERP or booking system while the caller is still on the line.';
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
+    default: TITLE,
+    // Pages set their own full title, brand included — see any page.js.
     template: '%s',
   },
-  description:
-    'Montegritty builds voice agents that make and take phone calls in Urdu, Pashto and Sindhi — plus the custom speech models underneath them and the automation that wires them into your systems.',
-  keywords: [
-    'Urdu voice agent', 'Pashto voice AI', 'voice AI Pakistan', 'AI call center Pakistan',
-    'text to speech Urdu', 'speech to text Urdu', 'custom voice model',
-    'COD confirmation calls', 'appointment reminder calls', 'AI voice automation',
-  ],
-  alternates: {
-    canonical: '/',
-  },
+  description: DESCRIPTION,
+  // Only the home page inherits this; every other route sets its own canonical.
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
+    title: TITLE,
     description:
-      'Voice agents that take the call in Urdu, Pashto and Sindhi. Hear eight of them handle a real conversation.',
+      'Voice agents that speak Urdu and act on it — booking, confirming and updating your systems mid-call. Hear eight of them handle a real conversation.',
     url: SITE_URL,
     siteName: 'Montegritty',
+    locale: 'en_PK',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Montegritty — Urdu Voice AI Agents for Pakistani Operations',
+    title: TITLE,
     description:
-      'Voice agents that take the call in Urdu, Pashto and Sindhi. Hear eight of them handle a real conversation.',
+      'Voice agents that speak Urdu and act on it — booking, confirming and updating your systems mid-call.',
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' },
+  },
 };
 
 export const viewport = {
@@ -81,6 +84,15 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${fraunces.variable} ${jakarta.variable} ${spaceMono.variable} ${nastaliq.variable}`}
     >
+      <head>
+        {/* Every section below the fold ships at opacity:0 and is revealed by an
+            IntersectionObserver. Without JS that hides essentially the whole
+            page — from a reader and from any crawler that flags invisible body
+            copy. One rule removes the risk and costs normal visitors nothing. */}
+        <noscript>
+          <style>{'.reveal{opacity:1 !important;transform:none !important}'}</style>
+        </noscript>
+      </head>
       <body>
         <OrganizationSchema />
         {children}

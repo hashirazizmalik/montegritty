@@ -1,13 +1,23 @@
 # Montegritty
 
-Marketing site for Montegritty — **voice AI for Pakistani operations**.
+Marketing site for Montegritty — **Pakistan's first Urdu-first agentic voice
+agents**.
 
-We build voice agents that make and take phone calls in Urdu, Pashto and
-Sindhi, the custom speech models underneath them, and the automation that wires
-them into a client's existing systems. We do **not** sell ERP rollouts, CRM
-implementations, websites, or ad campaigns — the site was repositioned away
-from that. If you are editing copy, read the positioning note at the top of
-`lib/content.js` first.
+The word that carries the positioning is *agentic*. Our agents do not just hold
+a conversation in Urdu: they take actions during the call — read live
+availability, book or move the appointment, confirm the order, and write the
+outcome back into the client's own CRM, ERP or booking system. A chatbot with a
+voice ends a call with a promise; an agent ends it with the record changed.
+
+We do **not** sell ERP rollouts, CRM implementations, websites, or ad
+campaigns. If you are editing copy, read the positioning note at the top of
+`lib/content.js` first — it also carries the writing rules, because the site
+was once rewritten for being unreadably dense.
+
+**`lib/seo.js` holds `SITE_URL`, and it must always match the hostname the site
+is actually served from.** It sat on a placeholder Vercel domain after
+montegritty.com went live, which pointed every canonical tag, every sitemap
+entry and the robots.txt sitemap directive at a host returning 404.
 
 Rebuilt from a single static `index.html` into a Next.js App Router project.
 The original file is preserved untouched at [`legacy/index.html`](legacy/index.html)
@@ -41,22 +51,35 @@ npm start          # serve the production build
 
 ```
 app/
-  layout.js                    fonts, metadata, <html> shell
+  layout.js                    fonts, metadata, <html> shell, Organization+WebSite schema
   globals.css                  the entire design system
   page.js                      home — introduces and routes, does not contain the site
-  solutions/                   the three pillars in full
-  industries/                  where voice agents earn their keep
-  process/                     how an engagement runs + pilot terms
+  not-found.js                 404 that routes on somewhere useful
+  robots.js  sitemap.js        both derive from lib/seo.js
+  healthcare/ education/ front-desk/   the three verticals (see components/VerticalPage)
+  how-it-works/                pilot terms, integrations, engines, languages, FAQ
   contact/                     enquiry form
-  voice-agents/                demo index
-    [slug]/                    one page per demo agent
-    dashboard/                 Urdu operations dashboard
+  agents/                      demo index
+    [slug]/                    one page per demo agent + AudioObject/Service/Breadcrumb schema
+  voice-agents/dashboard/      Urdu operations dashboard
 components/                    one file per section, shared across routes
 lib/content.js                 ALL site copy — edit here, not in components
+lib/seo.js                     SITE_URL — must match the live hostname
+lib/verticals.js               deep copy + FAQ for the three vertical pages
 lib/agents.js                  GENERATED demo agents — see tools/voice-agents/
 lib/dashboard.js               sample data for the Urdu dashboard
 legacy/index.html              the original single-file site
 ```
+
+## Structured data
+
+Search and answer engines get `Organization` + `WebSite` site-wide (one
+`@graph`, with `@id`s that everything else references), `Service` + `FAQPage`
+on each vertical, `FAQPage` + `HowTo` on `/how-it-works`, and `AudioObject`
+(with transcript, `inLanguage: ur-PK` and duration) + `Service`/`Offer` +
+`BreadcrumbList` on each agent page. Add profile URLs to `sameAs` in
+`components/OrganizationSchema.jsx` as they are claimed — that field is what
+lets an AI engine confirm this site and those profiles are one company.
 
 ## Information architecture
 

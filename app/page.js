@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import Marquee from '@/components/Marquee';
+import AgentAtWork from '@/components/AgentAtWork';
 import Edge from '@/components/Edge';
 import VoiceAgents from '@/components/VoiceAgents';
 import Sectors from '@/components/Sectors';
@@ -16,6 +17,8 @@ import Footer from '@/components/Footer';
  * what is underneath, what do I get, why now, what do I do.
  *
  *   Hero        — most voice AI only talks; ours does the work
+ *   AgentAtWork — the same claim, demonstrated: call on the left, the systems
+ *                 it touches on the right, moving together
  *   Edge        — what "agentic" means, in three claims
  *   VoiceAgents — the proof, because it is the one thing a competitor cannot fake
  *   Sectors     — healthcare, education, front desk, each linking to its own page
@@ -37,6 +40,7 @@ export default function Page() {
       <main id="top">
         <Hero />
         <Marquee />
+        <AgentAtWork />
         <Edge />
         <VoiceAgents />
         <Sectors />

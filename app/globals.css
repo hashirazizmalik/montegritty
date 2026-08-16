@@ -1611,3 +1611,421 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 .tpl-grid > *, .tpl-foot > *, .tpl-head > * { min-width: 0; }
 .tpl-head h3 { overflow-wrap: anywhere; }
 .tpl-voice { overflow-wrap: anywhere; }
+
+/* ==========================================================================
+   AGENT AT WORK — the home band that shows the call and the work together
+   ==========================================================================
+   Two surfaces on purpose: the call is warm paper, the systems column is the
+   same ink card used by the process band, because one side is a human
+   conversation and the other is machinery. The dashed bus between them carries
+   a clay dot every time a spoken line triggers an action — that dot is the
+   entire argument of the section, so it is the only thing here allowed to use
+   the accent at full strength.
+
+   Every animation is either (a) a one-shot triggered by a React key changing,
+   or (b) an infinite loop gated behind a `.on`/`.live` class. Nothing loops
+   while its owner is idle, and the reduced-motion block near the top of this
+   file already flattens all of it. */
+
+.aw {
+  display: grid;
+  grid-template-columns: 1fr 64px 1fr;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* ---------- left: the call ---------- */
+.aw-call {
+  background: var(--bone-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px 30px 24px;
+  display: flex;
+  flex-direction: column;
+  /* When the systems column runs taller, the extra height goes to the gap
+     above the toggle — never to the transcript window, which must stay a
+     fixed viewport or the scroll maths has nothing to scroll against. */
+  justify-content: space-between;
+  min-width: 0;
+}
+.aw-call-top { display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px; }
+.aw-speakers { display: flex; align-items: center; gap: 14px; }
+.aw-link { flex: 1; height: 1px; background: repeating-linear-gradient(90deg, var(--line) 0 5px, transparent 5px 10px); }
+.aw-context {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--muted);
+}
+
+.aw-speaker { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.aw-speaker.caller { flex-direction: row-reverse; text-align: right; }
+
+.aw-orb { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+.aw-orb-face {
+  position: absolute; inset: 0; z-index: 2;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-urdu), serif;
+  font-size: 1.35rem; line-height: 1;
+  border: 1px solid var(--line);
+  background: var(--bone);
+  color: var(--muted);
+  transition: transform 0.5s var(--ease), background 0.5s var(--ease),
+              color 0.5s var(--ease), border-color 0.5s var(--ease);
+}
+.aw-speaker.agent.live .aw-orb-face { background: var(--clay); border-color: var(--clay); color: var(--bone); transform: scale(1.06); }
+.aw-speaker.caller.live .aw-orb-face { background: var(--ink); border-color: var(--ink); color: var(--bone); transform: scale(1.06); }
+
+/* Ripples only exist while that speaker holds the floor. */
+.aw-ring {
+  position: absolute; inset: 0; z-index: 1;
+  border-radius: 50%; border: 1px solid var(--clay);
+  opacity: 0;
+}
+.aw-speaker.caller .aw-ring { border-color: var(--ink); }
+.aw-speaker.live .aw-ring { animation: awRipple 2s var(--ease) infinite; }
+.aw-speaker.live .aw-ring.two { animation-delay: 1s; }
+@keyframes awRipple {
+  0%   { transform: scale(1);    opacity: 0.5; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+
+.aw-speaker-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.aw-speaker-id b { font-size: 0.92rem; font-weight: 600; }
+.aw-speaker-id span { font-size: 0.72rem; color: var(--muted); }
+
+.aw-wave { display: inline-flex; align-items: flex-end; gap: 2px; height: 11px; margin-top: 5px; }
+.aw-speaker.caller .aw-wave { justify-content: flex-end; }
+.aw-wave i {
+  width: 2px; height: 3px; border-radius: 1px;
+  background: var(--line);
+  transition: background 0.4s var(--ease);
+}
+.aw-wave.on i { background: var(--clay); animation: awWave 0.85s ease-in-out infinite; }
+.aw-speaker.caller .aw-wave.on i { background: var(--ink); }
+@keyframes awWave {
+  0%, 100% { height: 3px; }
+  50%      { height: 11px; }
+}
+
+/* ---------- transcript ---------- */
+/* `flex: 1` here resolved to `flex-basis: 0` and let the list size to its own
+   content instead — every line rendered at once and the panel grew to ~1250px,
+   which dragged the systems column into a black void beside it. The window
+   must be a definite, non-flexing height. */
+.aw-script {
+  position: relative;
+  flex: none;
+  height: 232px;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+/* The window fades at the TOP, where spoken lines leave. The bottom holds the
+   line being spoken, so fading there would dim the one thing worth reading. */
+.aw-script::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 58px;
+  background: linear-gradient(to bottom, var(--bone-2) 30%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+.aw-lines { list-style: none; transition: transform 0.75s var(--ease); }
+.aw-line {
+  padding: 0 0 22px;
+  opacity: 0.22;
+  transition: opacity 0.6s var(--ease);
+}
+.aw-line.past { opacity: 0.38; }
+.aw-line.on { opacity: 1; }
+
+.aw-who {
+  display: block;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px;
+}
+.aw-line.agent .aw-who { color: var(--clay); }
+.aw-ur {
+  display: block;
+  font-size: 1.02rem;
+  line-height: 2.1;
+  margin-bottom: 4px;
+}
+.aw-en { display: block; font-size: 0.85rem; color: var(--ink-soft); line-height: 1.55; }
+
+/* The tag that names the action a line causes. Only lit on the active line —
+   it is a consequence, not a label. */
+.aw-trigger {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 10px; padding: 5px 11px;
+  border: 1px solid var(--line); border-radius: 40px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted);
+  transition: border-color 0.5s var(--ease), color 0.5s var(--ease), background 0.5s var(--ease);
+}
+.aw-line.on .aw-trigger { border-color: var(--clay); color: var(--clay); background: rgba(200, 75, 49, 0.06); }
+.aw-trigger i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.aw-line.on .aw-trigger i { animation: awBlink 1.2s ease-in-out infinite; }
+@keyframes awBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.aw-toggle {
+  align-self: flex-start;
+  margin-top: 18px;
+  background: none; border: 1px solid var(--line); border-radius: 40px;
+  padding: 8px 16px; cursor: pointer;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted);
+  transition: border-color 0.3s, color 0.3s;
+}
+.aw-toggle:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+.aw-toggle:disabled { opacity: 0.45; cursor: default; }
+
+/* ---------- the bus ---------- */
+.aw-bus { position: relative; display: grid; place-items: center; }
+.aw-bus-line {
+  width: 1px; height: 100%;
+  background: repeating-linear-gradient(180deg, var(--line) 0 6px, transparent 6px 12px);
+}
+.aw-bus-dot {
+  position: absolute; top: 0; left: 50%;
+  width: 7px; height: 7px; margin-left: -3.5px;
+  border-radius: 50%; background: var(--clay);
+  box-shadow: 0 0 0 5px rgba(200, 75, 49, 0.14);
+  animation: awTravel 1.05s var(--ease) forwards;
+}
+@keyframes awTravel {
+  0%   { top: 12%; opacity: 0; transform: scale(0.5); }
+  22%  { opacity: 1; transform: scale(1); }
+  100% { top: 62%; opacity: 0; transform: scale(0.7); }
+}
+
+/* ---------- right: the systems column ---------- */
+.aw-work {
+  background: var(--ink);
+  border-radius: 16px;
+  padding: 26px 26px 28px;
+  color: var(--bone);
+  display: flex; flex-direction: column;
+  min-width: 0;
+}
+.aw-work-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 16px; margin-bottom: 20px;
+  border-bottom: 1px solid rgba(250, 248, 245, 0.12);
+}
+.aw-work-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.5);
+}
+.aw-live {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.45);
+}
+.aw-live i { width: 6px; height: 6px; border-radius: 50%; background: rgba(250, 248, 245, 0.3); }
+.aw-live.on { color: var(--bone); }
+.aw-live.on i { background: var(--clay); animation: awBlink 1.4s ease-in-out infinite; }
+
+/* Reserved so the column does not resize as cards swap — the schedule card is
+   noticeably taller than a fields card, and letting the panel jump between
+   them reads as a glitch rather than as work happening. */
+.aw-stack { display: flex; flex-direction: column; gap: 10px; flex: 1; min-height: 336px; }
+
+/* Completed work collapses to one line and stays visible — the pile of things
+   already done is part of the point. */
+.aw-done-row {
+  display: grid; grid-template-columns: 16px 1fr auto;
+  align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid rgba(250, 248, 245, 0.1); border-radius: 9px;
+  background: rgba(250, 248, 245, 0.03);
+  animation: awRowIn 0.5s var(--ease) backwards;
+}
+.aw-done-row b { font-size: 0.8rem; font-weight: 500; color: rgba(250, 248, 245, 0.75); }
+.aw-done-row span {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.35);
+}
+@keyframes awRowIn { from { opacity: 0; transform: translateY(-6px); } }
+
+.aw-check { width: 16px; height: 16px; flex-shrink: 0; }
+.aw-check path {
+  fill: none; stroke: var(--clay); stroke-width: 2.2;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 22; stroke-dashoffset: 22;
+  animation: awDraw 0.45s var(--ease) forwards;
+}
+@keyframes awDraw { to { stroke-dashoffset: 0; } }
+
+/* ---------- the open card ---------- */
+.aw-card {
+  border: 1px solid rgba(250, 248, 245, 0.16); border-radius: 11px;
+  background: rgba(250, 248, 245, 0.05);
+  padding: 18px 18px 16px;
+  animation: awCardIn 0.55s var(--ease) backwards;
+  transition: border-color 0.6s var(--ease);
+}
+.aw-card.running { border-color: rgba(200, 75, 49, 0.55); }
+@keyframes awCardIn { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+
+.aw-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.aw-mode {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.57rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 3px;
+  border: 1px solid currentColor;
+}
+.aw-mode.read { color: rgba(250, 248, 245, 0.62); }
+.aw-mode.write { color: var(--clay); background: rgba(200, 75, 49, 0.12); }
+.aw-system {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.4);
+}
+.aw-state {
+  margin-left: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--clay);
+}
+.aw-dots { display: inline-flex; gap: 3px; }
+.aw-dots i { width: 3px; height: 3px; border-radius: 50%; background: var(--clay); animation: awDots 1s ease-in-out infinite; }
+.aw-dots i:nth-child(2) { animation-delay: 0.16s; }
+.aw-dots i:nth-child(3) { animation-delay: 0.32s; }
+@keyframes awDots { 0%, 100% { opacity: 0.25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-2px); } }
+
+.aw-card h4 {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 400; font-size: 1.15rem; letter-spacing: -0.01em;
+  margin-bottom: 14px;
+}
+
+/* ---------- record fields ---------- */
+.aw-fields { display: flex; flex-direction: column; gap: 1px; }
+.aw-field {
+  display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(250, 248, 245, 0.1);
+  animation: awFieldIn 0.5s var(--ease) backwards;
+}
+.aw-field:last-child { border-bottom: none; }
+@keyframes awFieldIn { from { opacity: 0; transform: translateX(-8px); } }
+.aw-field dt {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.42);
+}
+.aw-field dd { font-size: 0.85rem; color: var(--bone); text-align: right; }
+
+/* ---------- doctor's schedule ---------- */
+.aw-sched { position: relative; overflow: hidden; border-radius: 7px; }
+.aw-sched-head, .aw-sched-row {
+  display: grid; grid-template-columns: 46px repeat(3, 1fr); gap: 5px; align-items: center;
+}
+.aw-sched-head { margin-bottom: 6px; }
+.aw-sched-head span, .aw-sched-time {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.57rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.4);
+}
+.aw-sched-row { margin-bottom: 5px; }
+.aw-slot {
+  height: 26px; border-radius: 4px;
+  display: grid; place-items: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase;
+  animation: awSlotIn 0.4s var(--ease) backwards;
+}
+@keyframes awSlotIn { from { opacity: 0; transform: scale(0.9); } }
+.aw-slot.booked { background: rgba(250, 248, 245, 0.07); }
+.aw-slot.held { background: rgba(250, 248, 245, 0.07); color: rgba(250, 248, 245, 0.3); }
+/* The one the agent is about to take. */
+.aw-slot.target {
+  background: rgba(200, 75, 49, 0.16);
+  border: 1px solid var(--clay);
+  color: var(--clay);
+  animation: awSlotIn 0.4s var(--ease) backwards, awTarget 1.6s var(--ease) 0.5s infinite;
+}
+@keyframes awTarget {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 75, 49, 0.45); }
+  55%      { box-shadow: 0 0 0 7px rgba(200, 75, 49, 0); }
+}
+/* Sweep that reads as the agent scanning the grid. Runs once, on open. */
+.aw-scan {
+  position: absolute; inset: 0 auto 0 0; width: 42%;
+  background: linear-gradient(90deg, transparent, rgba(200, 75, 49, 0.16), transparent);
+  animation: awScan 1.25s var(--ease) forwards;
+  pointer-events: none;
+}
+@keyframes awScan {
+  from { transform: translateX(-110%); }
+  to   { transform: translateX(260%); }
+}
+
+.aw-card-note {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid rgba(250, 248, 245, 0.1);
+  font-size: 0.75rem; color: rgba(250, 248, 245, 0.45); line-height: 1.5;
+}
+
+.aw-idle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 22px 18px;
+  border: 1px dashed rgba(250, 248, 245, 0.16); border-radius: 11px;
+  font-size: 0.82rem; color: rgba(250, 248, 245, 0.45);
+}
+.aw-idle-pulse { width: 7px; height: 7px; border-radius: 50%; background: rgba(250, 248, 245, 0.3); animation: awBlink 1.8s ease-in-out infinite; }
+
+/* ---------- end-of-call summary ---------- */
+.aw-summary {
+  border: 1px solid rgba(200, 75, 49, 0.4); border-radius: 11px;
+  background: rgba(200, 75, 49, 0.07);
+  padding: 20px 18px;
+  animation: awCardIn 0.55s var(--ease) backwards;
+}
+.aw-summary h4 {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--clay); margin-bottom: 16px;
+}
+.aw-summary-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.aw-summary-stats b {
+  display: block;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 300; font-size: 2rem; line-height: 1;
+  animation: awCountIn 0.6s var(--ease) backwards;
+}
+@keyframes awCountIn { from { opacity: 0; transform: translateY(8px); } }
+.aw-summary-stats span {
+  display: block; margin-top: 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.45); line-height: 1.4;
+}
+.aw-summary p { font-size: 0.8rem; color: rgba(250, 248, 245, 0.55); line-height: 1.5; }
+
+.aw-note { margin-top: 22px; font-size: 0.78rem; color: var(--muted); max-width: 68ch; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 980px) {
+  .aw { grid-template-columns: 1fr; gap: 16px; }
+  /* The bus only means anything when the two columns sit side by side. */
+  .aw-bus { display: none; }
+  .aw-script { height: 208px; }
+}
+@media (max-width: 560px) {
+  .aw-call, .aw-work { padding: 22px 18px; border-radius: 12px; }
+  .aw-speakers { flex-direction: column; align-items: stretch; gap: 10px; }
+  .aw-speaker.caller { flex-direction: row; text-align: left; }
+  .aw-link { display: none; }
+  .aw-sched-head, .aw-sched-row { grid-template-columns: 40px repeat(3, 1fr); }
+  .aw-summary-stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .aw-summary-stats b { font-size: 1.5rem; }
+}
+.aw > *, .aw-card > *, .aw-field > * { min-width: 0; }

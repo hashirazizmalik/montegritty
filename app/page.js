@@ -6,8 +6,6 @@ import Edge from '@/components/Edge';
 import VoiceAgents from '@/components/VoiceAgents';
 import Sectors from '@/components/Sectors';
 import Integrations from '@/components/Integrations';
-import DashboardShowcase from '@/components/DashboardShowcase';
-import Confidential from '@/components/Confidential';
 import WhyVoice from '@/components/WhyVoice';
 import Closing from '@/components/Closing';
 import Footer from '@/components/Footer';
@@ -23,15 +21,15 @@ import Footer from '@/components/Footer';
  *   VoiceAgents — the proof, because it is the one thing a competitor cannot fake
  *   Sectors     — healthcare, education, front desk, each linking to its own page
  *   Integrations— the systems it acts on; this is what makes it an agent
- *   Dashboards  — reporting ships with the agent
- *   Confidential— the objection that stops regulated buyers
- *   WhyVoice    — the market case, sourced
+ *   WhyVoice    — the problem this exists to solve, sourced
  *   Closing     — one action
  *
  * Long-form lives on its own route. Adding a section here is almost always the
- * wrong move — give it a page. The engine layer used to sit between Sectors and
- * Dashboards; it was cut because the home page had become unreadable and that
- * section is covered in full on /how-it-works.
+ * wrong move — give it a page. Three sections have been cut from here for
+ * length, each because it already exists in full somewhere else: the engine
+ * layer and the dashboard showcase live on /how-it-works and
+ * /voice-agents/dashboard, and the confidential-deployment band is on all
+ * three vertical pages, where the buyer who needs it actually is.
  */
 export default function Page() {
   return (
@@ -45,8 +43,6 @@ export default function Page() {
         <VoiceAgents />
         <Sectors />
         <Integrations />
-        <DashboardShowcase />
-        <Confidential />
         <WhyVoice />
         <Closing />
       </main>

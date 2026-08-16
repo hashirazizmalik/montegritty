@@ -106,7 +106,7 @@ export default function TemplateLibrary() {
                 <div className="tpl-head">
                   {/* Faces make a catalogue read as a cast of staff rather than
                       a config list. Generated at build time — see tools/avatars.mjs. */}
-                  <img className="tpl-face" src={`/avatars/${t.id}.svg`} alt="" width={52} height={52} loading="lazy" />
+                  <img className="tpl-face" src={`/avatars/${t.id}.svg`} alt="" width={92} height={92} loading="lazy" />
                   <div>
                     <h3>{t.name}</h3>
                     <p className="tpl-ur urdu">{t.urName}</p>

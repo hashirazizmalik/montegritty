@@ -954,17 +954,20 @@ main > section:not(.hero) { padding: 130px 0; position: relative; }
 }
 .tpl-search:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(18, 17, 16, 0.06); }
 
-.tpl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+/* Two columns, not three. At three the cards were 373px wide and the avatar
+   had to shrink to 52px to fit beside the title, which is what made the faces
+   read as cropped thumbnails rather than a cast of staff. */
+.tpl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
 .tpl {
-  border: 1px solid var(--line); border-radius: 18px; padding: 26px 26px 22px; background: var(--bone-2);
-  display: flex; flex-direction: column; gap: 12px;
+  border: 1px solid var(--line); border-radius: 18px; padding: 30px 30px 26px; background: var(--bone-2);
+  display: flex; flex-direction: column; gap: 14px;
   transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease), border-color 0.5s var(--ease);
 }
 .tpl:hover { transform: translateY(-4px); border-color: var(--ink); box-shadow: 0 24px 48px -24px rgba(18, 17, 16, 0.25); }
 .tpl-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
-.tpl h3 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; font-size: 1.3rem; letter-spacing: -0.01em; margin: 0; line-height: 1.2; }
+.tpl h3 { font-family: var(--font-fraunces), Georgia, serif; font-weight: 400; font-size: 1.5rem; letter-spacing: -0.01em; margin: 0; line-height: 1.2; }
 .tpl-ur { font-size: 1rem; color: var(--muted); line-height: 2; }
-.tpl-blurb { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.65; flex: 1; }
+.tpl-blurb { font-size: 1rem; color: var(--ink-soft); line-height: 1.65; flex: 1; }
 .tpl-meta { display: flex; gap: 10px; flex-wrap: wrap; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.63rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .tpl-voice { color: var(--ink); border: 1px solid var(--line); border-radius: 30px; padding: 5px 10px; }
 .tpl-langs { color: var(--muted); padding: 5px 0; }
@@ -1172,25 +1175,39 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
   width: 100%; position: relative;
 }
 
+/* Horizontal: the portrait carries the left, everything readable sits in a
+   column beside it. The old vertical card stacked a 168px portrait above the
+   text and came out narrow and tall, which wasted the width the stage has. */
 .car-card {
-  flex: 0 0 auto; width: 100%; max-width: 420px; text-align: center;
+  flex: 0 0 auto; width: 100%; max-width: 940px; text-align: left;
   background: var(--bone-2); border: 1px solid var(--line); border-radius: 24px;
-  padding: 34px 34px 30px; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  animation: carIn 0.55s var(--ease);
+  padding: 30px; display: grid; grid-template-columns: 230px 1fr; gap: 36px; align-items: center;
 }
-@keyframes carIn { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+/* Stepping used to cross-fade in place, so there was no sense of moving
+   through a list — `data-dir` was being set on the element and never used by
+   anything. The card now enters from the side you are travelling towards. */
+.car-card[data-dir="1"] { animation: carInNext 0.5s var(--ease); }
+.car-card[data-dir="-1"] { animation: carInPrev 0.5s var(--ease); }
+@keyframes carInNext { from { opacity: 0; transform: translateX(44px); } to { opacity: 1; transform: none; } }
+@keyframes carInPrev { from { opacity: 0; transform: translateX(-44px); } to { opacity: 1; transform: none; } }
+
+.car-body { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
 
 .car-photo {
-  width: 168px; height: 210px; object-fit: cover; object-position: top center;
-  border-radius: 16px; display: block; margin-bottom: 18px;
+  width: 230px; height: 288px; object-fit: cover; object-position: top center;
+  border-radius: 16px; display: block; margin: 0;
 }
 .car-vert { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.car-name { font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 2.4rem; letter-spacing: -0.03em; line-height: 1; margin: 6px 0 0; }
+.car-name { font-family: var(--font-fraunces), Georgia, serif; font-weight: 300; font-size: 2.8rem; letter-spacing: -0.03em; line-height: 1; margin: 6px 0 0; }
 .car-role { font-family: var(--font-jakarta), system-ui, sans-serif; font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; }
-.car-tag { font-family: var(--font-fraunces), Georgia, serif; font-style: italic; font-size: 1.05rem; color: var(--clay); line-height: 1.5; margin-top: 10px; max-width: 30ch; }
+/* Taglines top out at 72 characters, so the column is sized to hold the
+   longest of them on a single line — that is the whole point of the horizontal
+   card. Anything longer wraps rather than truncating. */
+.car-tag { font-family: var(--font-fraunces), Georgia, serif; font-style: italic; font-size: 1.1rem; color: var(--clay); line-height: 1.45; margin-top: 12px; text-wrap: balance; }
 
+.car-actions { display: flex; align-items: center; gap: 22px; margin-top: 22px; flex-wrap: wrap; }
 .car-play {
-  display: inline-flex; align-items: center; gap: 10px; cursor: pointer; margin-top: 20px;
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
   font-family: var(--font-jakarta), system-ui, sans-serif; font-size: 0.9rem; font-weight: 500;
   background: var(--ink); color: var(--bone); border: none; border-radius: 40px; padding: 12px 24px;
   transition: background 0.4s var(--ease), transform 0.4s var(--ease);
@@ -1199,15 +1216,19 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 .car-play:hover { background: var(--clay); transform: translateY(-2px); }
 .car-play.on { background: var(--clay); }
 .car-play:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
-.car-more { margin-top: 14px; font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+.car-more { font-family: var(--font-mono), ui-monospace, monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); padding-bottom: 2px; }
 .car-more:hover { color: var(--clay); border-color: var(--clay); }
 
 /* The neighbours either side make the wrap-around legible before you click. */
 .car-peek { flex: 0 0 auto; background: none; border: none; padding: 0; cursor: pointer; line-height: 0; }
 .car-peek img {
-  width: 108px; height: 150px; object-fit: cover; object-position: top center; border-radius: 14px;
+  width: 96px; height: 190px; object-fit: cover; object-position: top center; border-radius: 14px;
   filter: grayscale(1); opacity: 0.32; transition: opacity 0.5s var(--ease), filter 0.5s var(--ease), transform 0.5s var(--ease);
 }
+/* Keyed on the agent id in JSX, so this replays on every step and the
+   neighbours visibly change rather than silently swapping pixels. */
+.car-peek img { animation: carPeekIn 0.5s var(--ease); }
+@keyframes carPeekIn { from { opacity: 0; } to { opacity: 0.32; } }
 .car-peek:hover img { opacity: 0.7; filter: grayscale(0.35); transform: translateY(-4px); }
 
 .car-arrow {
@@ -1228,13 +1249,23 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 .car-dot.on { background: var(--clay); transform: scale(1.45); }
 .car-dot:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; }
 
-@media (max-width: 860px) {
+@media (max-width: 980px) {
   .car-peek { display: none; }
   .car-stage { gap: 0; }
   .car-arrow { width: 42px; height: 42px; font-size: 1.3rem; }
-  .car-card { max-width: none; margin: 0 52px; padding: 28px 22px 26px; }
-  .car-name { font-size: 2rem; }
-  .car-photo { width: 140px; height: 175px; }
+  .car-card {
+    max-width: none; margin: 0 52px; padding: 26px 22px;
+    grid-template-columns: 1fr; gap: 22px; justify-items: center; text-align: center;
+  }
+  .car-body { align-items: center; }
+  .car-actions { justify-content: center; }
+  /* "Hospitals, clinics & diagnostic labs" is 35 characters of tracked mono —
+     wider than the card once the arrows take their margin, so it ran under
+     them and got clipped at both ends. */
+  .car-vert { font-size: 0.55rem; letter-spacing: 0.1em; line-height: 1.6; }
+  .car-tag { max-width: 34ch; }
+  .car-name { font-size: 2.2rem; }
+  .car-photo { width: 190px; height: 238px; }
 }
 
 /* ==========================================================================
@@ -1576,7 +1607,8 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 
 /* ---------- template cards: faces + listen ---------- */
 .tpl-head { display: flex; align-items: center; gap: 14px; }
-.tpl-face { border-radius: 50%; flex: none; display: block; }
+/* The avatar is a bust now, so it needs room to be one. */
+.tpl-face { border-radius: 50%; flex: none; display: block; width: 92px; height: 92px; background: var(--bone); }
 .tpl.playing { border-color: var(--clay); }
 .tpl-hear {
   display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
@@ -1603,6 +1635,7 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 /* The template grid's responsive rules were lost when the studio/client CSS
    blocks were pruned, leaving three columns inside a 372px phone. */
 @media (max-width: 1100px) { .tpl-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 860px) { .tpl-grid { grid-template-columns: 1fr; } }
 @media (max-width: 700px) {
   .tpl-grid { grid-template-columns: 1fr; }
   .tpl-search { width: 100%; }

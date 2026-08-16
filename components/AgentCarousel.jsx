@@ -76,7 +76,7 @@ export default function AgentCarousel({ agents }) {
           tabIndex={-1}
           aria-hidden="true"
         >
-          <img src={at(-1).portrait} alt="" width={220} height={275} loading="lazy" />
+          <img key={at(-1).id} src={at(-1).portrait} alt="" width={96} height={190} loading="lazy" />
         </button>
 
         <div className="car-card" key={agent.id} data-dir={dir}>
@@ -84,29 +84,33 @@ export default function AgentCarousel({ agents }) {
             className="car-photo"
             src={agent.portrait}
             alt={`${agent.name}, ${agent.role}`}
-            width={220}
-            height={275}
+            width={240}
+            height={300}
           />
-          <p className="car-vert">{agent.vertical}</p>
-          <h3 className="car-name">{agent.name}</h3>
-          <p className="car-role">{agent.role}</p>
-          <p className="car-tag">{agent.tagline}</p>
+          <div className="car-body">
+            <p className="car-vert">{agent.vertical}</p>
+            <h3 className="car-name">{agent.name}</h3>
+            <p className="car-role">{agent.role}</p>
+            <p className="car-tag">{agent.tagline}</p>
 
-          <button
-            type="button"
-            className={`car-play${playing ? ' on' : ''}`}
-            onClick={toggle}
-            aria-label={playing ? `Stop ${agent.name}` : `Hear ${agent.name}'s voice`}
-          >
-            {playing ? <PauseGlyph /> : <PlayGlyph />}
-            {playing ? `${agent.name} speaking` : 'Hear the voice'}
-          </button>
+            <div className="car-actions">
+              <button
+                type="button"
+                className={`car-play${playing ? ' on' : ''}`}
+                onClick={toggle}
+                aria-label={playing ? `Stop ${agent.name}` : `Hear ${agent.name}'s voice`}
+              >
+                {playing ? <PauseGlyph /> : <PlayGlyph />}
+                {playing ? `${agent.name} speaking` : 'Hear the voice'}
+              </button>
 
-          {/* /voice-agents/[slug] was renamed to /agents/[slug]; this link was
-              left behind and 404'd on both pages the carousel appears on. */}
-          <Link className="car-more" href={`/agents/${agent.id}`}>
-            Hear the full call &rarr;
-          </Link>
+              {/* /voice-agents/[slug] was renamed to /agents/[slug]; this link
+                  was left behind and 404'd on both pages the carousel is on. */}
+              <Link className="car-more" href={`/agents/${agent.id}`}>
+                Hear the full call &rarr;
+              </Link>
+            </div>
+          </div>
         </div>
 
         <button
@@ -116,7 +120,7 @@ export default function AgentCarousel({ agents }) {
           tabIndex={-1}
           aria-hidden="true"
         >
-          <img src={at(1).portrait} alt="" width={220} height={275} loading="lazy" />
+          <img key={at(1).id} src={at(1).portrait} alt="" width={96} height={190} loading="lazy" />
         </button>
 
         <button type="button" className="car-arrow next" onClick={() => go(1)} aria-label="Next agent">›</button>

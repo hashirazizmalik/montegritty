@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BEATS, CALL_META, CALL_SUMMARY, SECTION } from '@/lib/worksequence';
+import { BEATS, CALL_META, CALL_SUMMARY, SECTION, VOICED } from '@/lib/worksequence';
 import Reveal from './Reveal';
 
 /**
@@ -144,7 +144,12 @@ export default function AgentAtWork() {
     return () => io.disconnect();
   }, []);
 
-  const running = inView && !paused && !reduced;
+  // Silent mode advances on a timer and loops forever, which is fine because
+  // nothing is making noise. Voiced mode cannot: browsers block audio that
+  // starts without a gesture, and a call that re-plays itself on loop while
+  // someone is reading the page is obnoxious. So it waits to be pressed, and
+  // stops at the end.
+  const running = inView && !paused && !reduced && !VOICED;
 
   // One timer, one integer. `step === BEATS.length` is the summary card.
   useEffect(() => {
@@ -155,13 +160,72 @@ export default function AgentAtWork() {
     return () => clearTimeout(t);
   }, [step, running]);
 
+  // ---- voiced mode: the recordings drive everything -----------------------
+  //
+  // Pacing comes from the files themselves — each turn ends when its audio
+  // ends, so the transcript can never drift out of step with the voice the way
+  // a hand-written `hold` eventually does.
+  const audioRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!VOICED || reduced) return;
+    const el = audioRef.current;
+    if (!el) return;
+
+    if (!playing) { el.pause(); return; }
+
+    if (step >= BEATS.length) {
+      const t = setTimeout(() => { setPlaying(false); setStep(0); }, SUMMARY_MS);
+      return () => clearTimeout(t);
+    }
+
+    const src = BEATS[step].audio;
+    // Only reassign on an actual change — setting `src` to its current value
+    // reloads the file and restarts the line, which would make the pause
+    // button jump back to the start of whatever was playing.
+    if (!el.src.endsWith(src)) el.src = src;
+
+    el.play().catch((err) => {
+      // Assigning `src` starts a load that interrupts any play() already in
+      // flight, and the interrupted promise rejects with AbortError. That is
+      // routine — the newer play() is the one that matters. Treating it as a
+      // failure was what kept flipping the button back to "Play the call"
+      // while the audio was, in fact, playing.
+      if (err?.name === 'AbortError') return;
+      // NotAllowedError is the real one: the browser refused to make sound.
+      setPlaying(false);
+    });
+
+    const next = () => setStep((s) => s + 1);
+    // A file that fails to load must not stall the call on a silent turn.
+    const skip = () => setStep((s) => s + 1);
+    el.addEventListener('ended', next);
+    el.addEventListener('error', skip);
+    return () => {
+      el.removeEventListener('ended', next);
+      el.removeEventListener('error', skip);
+    };
+  }, [step, playing, reduced]);
+
+  // Scrolling away should stop the sound, not just the animation.
+  useEffect(() => { if (!inView && playing) setPlaying(false); }, [inView, playing]);
+
+  // Warm the next file so turns run into each other instead of gapping.
+  useEffect(() => {
+    if (!VOICED || !playing) return;
+    const upcoming = BEATS[step + 1];
+    if (upcoming?.audio) new Audio(upcoming.audio).preload = 'auto';
+  }, [step, playing]);
+
   // A beat carrying an action shows it working, then completes it.
   useEffect(() => {
-    if (!running || step >= BEATS.length || !BEATS[step].action) return;
+    if (reduced || step >= BEATS.length || !BEATS[step].action) return;
+    if (!running && !playing) return;
     setRunPhase('running');
     const t = setTimeout(() => setRunPhase('done'), ACTION_RUN_MS);
     return () => clearTimeout(t);
-  }, [step, running]);
+  }, [step, running, playing, reduced]);
 
   const shown = reduced ? BEATS.length - 1 : step;
 
@@ -208,7 +272,9 @@ export default function AgentAtWork() {
   // The call has ended, but leaving the whole transcript greyed reads as broken
   // rather than finished — hold the last line lit.
   const highlight = Math.min(shown, BEATS.length - 1);
-  const speaking = atSummary ? null : BEATS[highlight].who;
+  // Nobody is speaking on a call that has not been started, or one that ended.
+  const idle = VOICED && !playing;
+  const speaking = atSummary || idle ? null : BEATS[highlight].who;
   const phase = reduced || activeIdx !== shown ? 'done' : runPhase;
 
   return (
@@ -265,14 +331,33 @@ export default function AgentAtWork() {
               </ul>
             </div>
 
-            <button
-              type="button"
-              className="aw-toggle"
-              onClick={() => setPaused((p) => !p)}
-              disabled={reduced}
-            >
-              {reduced ? 'Animation off' : paused ? 'Play sequence' : 'Pause sequence'}
-            </button>
+            {VOICED ? (
+              <>
+                <button
+                  type="button"
+                  className={`aw-toggle${playing ? '' : ' primary'}`}
+                  onClick={() => setPlaying((p) => !p)}
+                  disabled={reduced}
+                >
+                  {reduced ? 'Audio off'
+                    : playing ? 'Pause call'
+                    : step > 0 ? 'Resume call'
+                    : 'Play the call'}
+                </button>
+                {/* preload="none" — eight files must not be fetched by every
+                    visitor who scrolls past a section they never play. */}
+                <audio ref={audioRef} preload="none" />
+              </>
+            ) : (
+              <button
+                type="button"
+                className="aw-toggle"
+                onClick={() => setPaused((p) => !p)}
+                disabled={reduced}
+              >
+                {reduced ? 'Animation off' : paused ? 'Play sequence' : 'Pause sequence'}
+              </button>
+            )}
           </div>
 
           {/* ---------------- the wire between them ---------------- */}

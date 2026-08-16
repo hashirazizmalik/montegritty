@@ -1781,6 +1781,11 @@ a.tpl-deploy.locked { display: inline-block; text-align: center; }
 }
 .aw-toggle:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
 .aw-toggle:disabled { opacity: 0.45; cursor: default; }
+/* Before the call has been played this is the one thing to press, so it stops
+   looking like a secondary control and starts looking like a play button. */
+.aw-toggle.primary { background: var(--ink); border-color: var(--ink); color: var(--bone); }
+.aw-toggle.primary::before { content: "▶"; margin-right: 8px; font-size: 0.7rem; }
+.aw-toggle.primary:hover:not(:disabled) { background: var(--clay); border-color: var(--clay); color: var(--bone); }
 
 /* ---------- the bus ---------- */
 .aw-bus { position: relative; display: grid; place-items: center; }

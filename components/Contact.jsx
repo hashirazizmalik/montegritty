@@ -5,6 +5,7 @@ import { CONTACT } from '@/lib/content';
 import Reveal from './Reveal';
 import PhoneIcon from './PhoneIcon';
 import WhatsAppIcon from './WhatsAppIcon';
+import MailIcon from './MailIcon';
 
 const EMPTY = { name: '', email: '', company: '', message: '' };
 
@@ -103,6 +104,10 @@ export default function Contact() {
           <a className="call-btn whatsapp" href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
             <WhatsAppIcon />
             <span className="num">{CONTACT.whatsappDisplay}</span>
+          </a>
+          <a className="call-btn" href={CONTACT.emailLink}>
+            <MailIcon />
+            <span className="num">{CONTACT.email}</span>
           </a>
         </div>
       </Reveal>

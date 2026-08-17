@@ -52,9 +52,11 @@ export default function OrganizationSchema() {
       'Self-hosted voice AI deployment',
       'Custom speech-to-text and text-to-speech models',
     ].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+    email: CONTACT.email,
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: CONTACT.phoneLink.replace('tel:', ''),
+      email: CONTACT.email,
       contactType: 'sales',
       areaServed: 'Worldwide',
       availableLanguage: ['English', 'Urdu'],

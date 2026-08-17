@@ -98,7 +98,7 @@ export default function AboutPage() {
                 <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
                   WhatsApp {CONTACT.whatsappDisplay}
                 </a>{' '}
-                &middot; {CONTACT.hours}
+                &middot; <a href={CONTACT.emailLink}>{CONTACT.email}</a> &middot; {CONTACT.hours}
                 <br />
                 {SOCIAL.map((s, i) => (
                   <span key={s.href}>

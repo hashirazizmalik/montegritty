@@ -28,6 +28,7 @@ export default function Footer() {
             <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
               WhatsApp {CONTACT.whatsappDisplay}
             </a>
+            <a href={CONTACT.emailLink}>{CONTACT.email}</a>
             {SOCIAL.map((s) => (
               <a href={s.href} key={s.href} target="_blank" rel="noopener noreferrer">{s.label}</a>
             ))}

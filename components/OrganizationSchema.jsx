@@ -38,11 +38,14 @@ export default function OrganizationSchema() {
       'Appointment reminder calls',
       'Cash on delivery order confirmation',
     ],
-    // Claim these, then uncomment — an unresolvable sameAs is worse than none.
-    // sameAs: [
-    //   'https://www.linkedin.com/company/montegritty',
-    //   'https://www.crunchbase.com/organization/montegritty',
-    // ],
+    // The field that most directly improves AI retrieval: it is how a model
+    // confirms the profile and this site describe one entity. Both checked
+    // live (200) before being added — an unresolvable sameAs is worse than
+    // none. Add more here the day they are claimed.
+    sameAs: [
+      'https://www.linkedin.com/company/montegritty/',
+      'https://www.instagram.com/montegritty',
+    ],
     makesOffer: [
       'Urdu-first agentic voice agents',
       'Voice agent integration with CRM, ERP and booking systems',

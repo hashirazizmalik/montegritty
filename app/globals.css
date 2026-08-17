@@ -392,11 +392,23 @@ main > section:not(.hero) { padding: 130px 0; position: relative; }
 /* ---------- FOOTER ---------- */
 /* Class-scoped for the same reason as .site-header above. */
 .site-footer { background: var(--ink); color: var(--bone); padding: 100px 0 40px; }
-.foot-top { display: grid; grid-template-columns: 1.8fr 1fr 1fr; gap: 60px; padding-bottom: 80px; border-bottom: 1px solid rgba(250, 248, 245, 0.15); }
+/* Four children render here (brand, two mapped columns, and the "Reach us"
+   column below), but this only ever defined three tracks — so "Reach us"
+   silently wrapped onto its own row under the logo instead of sitting beside
+   the others, leaving a dead gap on the right and roughly doubling the
+   footer's height. Four tracks fixes it. */
+.foot-top { display: grid; grid-template-columns: 1.5fr 0.9fr 0.9fr 0.9fr; gap: 48px; padding-bottom: 80px; border-bottom: 1px solid rgba(250, 248, 245, 0.15); }
 .foot-brand .logo { color: var(--bone); font-size: 1.8rem; }
 .foot-brand .logo .mark line, .foot-brand .logo .mark circle { stroke: var(--bone); }
 .foot-brand .logo .mark circle.dot { fill: var(--clay); stroke: none; }
 .foot-brand p { color: rgba(250, 248, 245, 0.7); max-width: 38ch; margin-top: 24px; font-size: 1rem; line-height: 1.7; }
+.foot-about {
+  display: inline-flex; margin-top: 20px; font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(250, 248, 245, 0.6); border-bottom: 1px solid rgba(250, 248, 245, 0.25); padding-bottom: 2px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.foot-about:hover { color: var(--bone); border-color: var(--bone); }
 .foot-col h4 { font-family: var(--font-mono), ui-monospace, monospace; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay); margin-bottom: 24px; }
 .foot-col a, .foot-col p { display: block; color: rgba(250, 248, 245, 0.8); font-size: 0.95rem; margin-bottom: 16px; transition: color 0.3s; }
 .foot-col a:hover { color: var(--bone); }

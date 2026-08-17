@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CONTACT, FOOTER } from '@/lib/content';
+import { CONTACT, FOOTER, SOCIAL } from '@/lib/content';
 import Logo from './Logo';
 
 export default function Footer() {
@@ -10,6 +10,7 @@ export default function Footer() {
           <div className="foot-brand">
             <Logo href="/" />
             <p>{FOOTER.blurb}</p>
+            <Link href={FOOTER.about.href} className="foot-about">{FOOTER.about.label} &rarr;</Link>
           </div>
 
           {FOOTER.columns.map((col) => (
@@ -27,6 +28,9 @@ export default function Footer() {
             <a href={CONTACT.whatsappLink} target="_blank" rel="noopener noreferrer">
               WhatsApp {CONTACT.whatsappDisplay}
             </a>
+            {SOCIAL.map((s) => (
+              <a href={s.href} key={s.href} target="_blank" rel="noopener noreferrer">{s.label}</a>
+            ))}
             <p>{CONTACT.hours}</p>
             <p>Pakistan-based, remote-first</p>
           </div>
